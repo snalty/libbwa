@@ -25,6 +25,9 @@
 
 /* Contact: Heng Li <lh3@sanger.ac.uk> */
 
+/* This include is added for libbwa. (2014-06-26) */
+#include "bwtindex.h"
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
