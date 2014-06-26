@@ -37,6 +37,20 @@ typedef enum {
 
 int libbwa_index(const char *db, const char *prefix_, libbwa_index_algo algo, int is_64);
 
+// Based on bsw2opt_t in bwtsw2.h
+typedef struct {
+    int skip_sw:8, cpy_cmt:8, hard_clip:16;
+    int a, b, q, r, t, qr, bw, max_ins, max_chain_gap;
+    int z, is, t_seeds, multi_2nd;
+    float mask_level, coef;
+    int n_threads, chunk_size;
+} libbwa_sw_opt;
+
+// Based on bsw2_init_opt in bwtsw2.h
+libbwa_sw_opt *libbwa_sw_opt_init(void);
+
+int libbwa_sw(const char *db, const char *read, const char *mate, const libbwa_sw_opt *opt_);
+
 // Same as mem_opt_t in bwamem.h
 typedef struct {
     int a, b;               // match score and mismatch penalty
