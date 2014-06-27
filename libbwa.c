@@ -267,8 +267,17 @@ void convert_mem_opt(const libbwa_mem_opt *src, mem_opt_t *dst)
     memcpy(dst->mat, src->mat, sizeof(int8_t) * 25);
 }
 
+void bwa_fprint_sam_hdr(FILE *stream, const bntseq_t *bns, const char *rg_line)
+{
+	int i;
+	for (i = 0; i < bns->n_seqs; ++i)
+		err_fprintf(stream, "@SQ\tSN:%s\tLN:%d\n", bns->anns[i].name, bns->anns[i].len);
+	if (rg_line) err_printf("%s\n", rg_line);
+	err_fflush(stream);
+}
+
 // Modified based on main_mem in fastmap.c
-int libbwa_mem(const char *db, const char *reads, const char *mates, const libbwa_mem_opt *opt_)
+int libbwa_mem(const char *db, const char *read, const char *mate, const char *out, const libbwa_mem_opt *opt_)
 {
     mem_opt_t *opt;
     int fd, fd2, i, n, copy_comment = 0;
@@ -280,6 +289,7 @@ int libbwa_mem(const char *db, const char *reads, const char *mates, const libbw
     void *ko = 0, *ko2 = 0;
     int64_t n_processed = 0;
     mem_pestat_t *pes0 = 0;
+    FILE *fpo;
 
     opt = mem_opt_init();
     convert_mem_opt(opt_, opt);
@@ -287,21 +297,21 @@ int libbwa_mem(const char *db, const char *reads, const char *mates, const libbw
     bwa_fill_scmat(opt->a, opt->b, opt->mat);
     if ((idx = bwa_idx_load(db, BWA_IDX_ALL)) == 0) return 1; // FIXME: memory leak
 
-    ko = kopen(reads, &fd);
+    ko = kopen(read, &fd);
     if (ko == 0) {
-        if (bwa_verbose >= 1) fprintf(stderr, "[E::%s] fail to open file `%s'.\n", __func__, reads);
+        if (bwa_verbose >= 1) fprintf(stderr, "[E::%s] fail to open file `%s'.\n", __func__, read);
         return 1;
     }
     fp = gzdopen(fd, "r");
     ks = kseq_init(fp);
-    if (mates != NULL) {
+    if (mate != NULL) {
         if (opt->flag&MEM_F_PE) {
             if (bwa_verbose >= 2)
                 fprintf(stderr, "[W::%s] when '-p' is in use, the second query file will be ignored.\n", __func__);
         } else {
-            ko2 = kopen(mates, &fd2);
+            ko2 = kopen(mate, &fd2);
             if (ko2 == 0) {
-                if (bwa_verbose >= 1) fprintf(stderr, "[E::%s] fail to open file `%s'.\n", __func__, mates);
+                if (bwa_verbose >= 1) fprintf(stderr, "[E::%s] fail to open file `%s'.\n", __func__, mate);
                 return 1;
             }
             fp2 = gzdopen(fd2, "r");
@@ -309,7 +319,10 @@ int libbwa_mem(const char *db, const char *reads, const char *mates, const libbw
             opt->flag |= MEM_F_PE;
         }
     }
-    bwa_print_sam_hdr(idx->bns, rg_line);
+
+    fpo = xopen(out, "w");
+
+    bwa_fprint_sam_hdr(fpo, idx->bns, rg_line);
     while ((seqs = bseq_read(opt->chunk_size * opt->n_threads, &n, ks, ks2)) != 0) {
         int64_t size = 0;
         if ((opt->flag & MEM_F_PE) && (n&1) == 1) {
@@ -327,7 +340,7 @@ int libbwa_mem(const char *db, const char *reads, const char *mates, const libbw
         mem_process_seqs(opt, idx->bwt, idx->bns, idx->pac, n_processed, n, seqs, pes0);
         n_processed += n;
         for (i = 0; i < n; ++i) {
-            err_fputs(seqs[i].sam, stdout);
+            err_fputs(seqs[i].sam, fpo);
             free(seqs[i].name); free(seqs[i].comment); free(seqs[i].seq); free(seqs[i].qual); free(seqs[i].sam);
         }
         free(seqs);
@@ -336,6 +349,7 @@ int libbwa_mem(const char *db, const char *reads, const char *mates, const libbw
     free(opt);
     bwa_idx_destroy(idx);
     kseq_destroy(ks);
+    err_fclose(fpo);
     err_gzclose(fp); kclose(ko);
     if (ks2) {
         kseq_destroy(ks2);

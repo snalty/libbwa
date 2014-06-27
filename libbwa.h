@@ -87,7 +87,7 @@ typedef struct {
 // Same as mem_opt_init in bwamem.h
 libbwa_mem_opt *libbwa_mem_opt_init(void);
 
-int libbwa_mem(const char *db, const char *reads, const char *mates, const libbwa_mem_opt *opt_);
+int libbwa_mem(const char *db, const char *read, const char *mate, const char *out, const libbwa_mem_opt *opt_);
 
 #ifdef __cplusplus
 }

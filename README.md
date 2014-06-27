@@ -41,10 +41,11 @@ void index_example(void)
 void mem_example(void)
 {
     char *db = "path/to/file.fa";
-    char *reads = "path/to/file.fq";
+    char *read = "path/to/file.fq";
+    char *out = "path/to/out.sam";
     libbwa_mem_opt *opt = libbwa_mem_opt_init();
 
-    libbwa_mem(db, reads, NULL, opt);
+    libbwa_mem(db, read, NULL, out, opt);
 }
 ```
 
