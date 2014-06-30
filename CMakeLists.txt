@@ -13,7 +13,9 @@ set(BWA_HEADERS
   libbwa.h)
 
 set(BWA_SOURCES
-  libbwa.c
+  libbwa_index.c
+  libbwa_sw.c
+  libbwa_mem.c
   utils.c
   kthread.c
   kstring.c
