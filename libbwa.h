@@ -49,7 +49,7 @@ typedef struct {
 // Based on bsw2_init_opt in bwtsw2.h
 libbwa_sw_opt *libbwa_sw_opt_init(void);
 
-int libbwa_sw(const char *db, const char *read, const char *mate, const libbwa_sw_opt *opt_);
+int libbwa_sw(const char *db, const char *read, const char *mate, const char *out, const libbwa_sw_opt *opt_);
 
 // Same as mem_opt_t in bwamem.h
 typedef struct {

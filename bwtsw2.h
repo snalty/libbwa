@@ -48,6 +48,13 @@ typedef struct {
 	char *name, *seq, *qual, *sam, *comment;
 } bsw2seq1_t;
 
+// Moved from bwtsw2_aux.c (2014-06-30)
+typedef struct {
+	int n, max;
+	bsw2seq1_t *seq;
+} bsw2seq_t;
+// -----
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -61,6 +68,12 @@ extern "C" {
 	void bsw2_global_destroy(bsw2global_t *_pool);
 
 	void bsw2_pair(const bsw2opt_t *opt, int64_t l_pac, const uint8_t *pac, int n, bsw2seq1_t *seq, bwtsw2_t **hit);
+
+    // Added by libbwa (2014-06-30)
+    bwtsw2_t *bsw2_dup_no_cigar(const bwtsw2_t *b);
+    void bsw2_extend_left(const bsw2opt_t *opt, bwtsw2_t *b, uint8_t *_query, int lq, uint8_t *pac, bwtint_t l_pac, uint8_t *_mem);
+    void bsw2_extend_rght(const bsw2opt_t *opt, bwtsw2_t *b, uint8_t *query, int lq, uint8_t *pac, bwtint_t l_pac, uint8_t *_mem);
+    // -----
 
 #ifdef __cplusplus
 }

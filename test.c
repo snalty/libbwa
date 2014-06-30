@@ -32,9 +32,10 @@ void libbwa_index_test(void)
 void libbwa_sw_test(void)
 {
     char *db = "../test-resources/test.fa";
-    char *reads = "../test-resources/test.fq";
+    char *read = "../test-resources/test.fq";
+    char *out = "/tmp/libbwa_sw_test.sam";
     libbwa_sw_opt *opt = libbwa_sw_opt_init();
-    CU_ASSERT(libbwa_sw(db, reads, NULL, opt) == 0);
+    CU_ASSERT(libbwa_sw(db, read, NULL, out, opt) == 0);
 }
 
 void libbwa_mem_test(void)

@@ -318,10 +318,9 @@ static void flag_fr(bwtsw2_t *b[2])
 	}
 }
 
-typedef struct {
-	int n, max;
-	bsw2seq1_t *seq;
-} bsw2seq_t;
+//
+// bsw2seq_t definition is moved to bwtsw2_aux.c (2014-06-30)
+//
 
 static int fix_cigar(const bntseq_t *bns, bsw2hit_t *p, int n_cigar, uint32_t *cigar)
 {

@@ -25,23 +25,33 @@ $ make install
 Usage
 -----
 
-Current libbwa only supports 'index' and 'mem' functions.
+Current libbwa only supports 'index', 'sw' and 'mem' functions.
 
 ```c
 # include <libbwa.h>
 
 void index_example(void)
 {
-    char *db = "path/to/file.fa";
-    char *prefix = "path/to/file.fa";
+    char *db = "path/to/reference.fa";
+    char *prefix = "path/to/reference.fa";
 
     libbwa_index(db, prefix, LIBBWA_INDEX_ALGO_AUTO, 0);
 }
 
+void sw_example(void)
+{
+    char *db = "path/to/reference.fa";
+    char *read = "path/to/read.fq";
+    char *out = "path/to/out.sam";
+    libbwa_sw_opt *opt = libbwa_sw_opt_init();
+
+    libbwa_sw(db, reads, NULL, out, opt);
+}
+
 void mem_example(void)
 {
-    char *db = "path/to/file.fa";
-    char *read = "path/to/file.fq";
+    char *db = "path/to/reference.fa";
+    char *read = "path/to/read.fq";
     char *out = "path/to/out.sam";
     libbwa_mem_opt *opt = libbwa_mem_opt_init();
 
