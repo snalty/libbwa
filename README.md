@@ -4,6 +4,8 @@ libbwa
 libbwa is a shared library of Burrows-Wheeler Aligner (BWA) forked from original
 [repository][bwa].
 
+[![Build Status](https://travis-ci.org/chrovis/libbwa.svg?branch=master)](https://travis-ci.org/chrovis/libbwa)
+
 BWA is a great software in bioinformatics which efficiently maps sequences
 against a large reference genome. BWA is, however, implemented as a command-line
 tool, and therefore, it is hard-to-use in programs and it lacks reusability. The
