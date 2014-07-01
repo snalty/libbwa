@@ -146,6 +146,8 @@ extern "C" {
 
 	void bwa_cs2nt_core(bwa_seq_t *p, bwtint_t l_pac, ubyte_t *pac);
 
+    // Added for libbwa (2014-07-01)
+    bwa_seqio_t *bwa_open_reads(int mode, const char *fn_fa);
 #ifdef __cplusplus
 }
 #endif

@@ -37,6 +37,24 @@ typedef enum {
 
 int libbwa_index(const char *db, const char *prefix_, libbwa_index_algo algo, int is_64);
 
+// Based on pe_opt_t in bwtaln.h
+typedef struct {
+	int s_mm, s_gapo, s_gape;
+	int mode; // bit 24-31 are the barcode length
+	int indel_end_skip, max_del_occ, max_entries;
+	float fnr;
+	int max_diff, max_gapo, max_gape;
+	int max_seed_diff, seed_len;
+	int n_threads;
+	int max_top2;
+	int trim_qual;
+} libbwa_aln_opt;
+
+// Based on gap_init_opt in bwtaln.h
+libbwa_aln_opt *libbwa_aln_opt_init(void);
+
+int libbwa_aln(const char *db, const char *read, const char *out, const libbwa_aln_opt *opt_);
+
 // Based on bsw2opt_t in bwtsw2.h
 typedef struct {
     int skip_sw:8, cpy_cmt:8, hard_clip:16;

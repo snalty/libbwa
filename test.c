@@ -29,6 +29,15 @@ void libbwa_index_test(void)
     CU_ASSERT(libbwa_index(db, prefix, algo, is_64) == 0);
 }
 
+void libbwa_aln_test(void)
+{
+    char *db = "../test-resources/test.fa";
+    char *read = "../test-resources/test.fq";
+    char *out = "/tmp/libbwa_aln_test.sai";
+    libbwa_aln_opt *opt = libbwa_aln_opt_init();
+    CU_ASSERT(libbwa_aln(db, read, out, opt) == 0);
+}
+
 void libbwa_sw_test(void)
 {
     char *db = "../test-resources/test.fa";
@@ -62,6 +71,11 @@ int main(int argc, char *argv[])
    }
 
    if (NULL == CU_add_test(pSuite, "index test", libbwa_index_test)) {
+      CU_cleanup_registry();
+      return CU_get_error();
+   }
+
+   if (NULL == CU_add_test(pSuite, "aln test", libbwa_aln_test)) {
       CU_cleanup_registry();
       return CU_get_error();
    }
