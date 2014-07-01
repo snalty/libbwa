@@ -1,7 +1,15 @@
 libbwa
 ======
 
-libbwa is a shared library of Burrows-Wheeler Aligner (BWA) forked from original [repository][bwa].
+libbwa is a shared library of Burrows-Wheeler Aligner (BWA) forked from original
+[repository][bwa].
+
+BWA is a great software in bioinformatics which efficiently maps sequences
+against a large reference genome. BWA is, however, implemented as a command-line
+tool, and therefore, it is hard-to-use in programs and it lacks reusability. The
+purpose of libbwa is providing a shared library of BWA for calling BWA functions
+from your programs. In addition, it uses CMake as a build tool instead of Make
+and it prepares unit tests for ensuring the software safety.
 
 Requirements
 ------------
