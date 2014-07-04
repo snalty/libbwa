@@ -22,7 +22,14 @@
 #ifndef LIBBWA_H
 #define LIBBWA_H
 
+#include <stdio.h>
 #include <stdint.h>
+
+#include "bntseq.h"
+
+#define LIBBWA_PG_ID "bwa"
+#define LIBBWA_PG_PN "libbwa"
+#define LIBBWA_PACKAGE_VERSION "0.7.9a-r786"
 
 #ifdef __cplusplus
 extern "C" {
@@ -54,6 +61,15 @@ typedef struct {
 libbwa_aln_opt *libbwa_aln_opt_init(void);
 
 int libbwa_aln(const char *db, const char *read, const char *out, const libbwa_aln_opt *opt_);
+
+typedef struct {
+    int n_occ;
+    char *rg_line;
+} libbwa_samse_opt;
+
+libbwa_samse_opt *libbwa_samse_opt_init(void);
+
+int libbwa_samse(const char *db, const char *sai, const char *read, const char *out, const libbwa_samse_opt *opt);
 
 // Based on bsw2opt_t in bwtsw2.h
 typedef struct {

@@ -36,11 +36,13 @@ KSEQ_DECLARE(gzFile)
 void *kopen(const char *fn, int *_fd);
 int kclose(void *a);
 
+extern void bwa_fprint_sam_hdr(FILE *stream, const bntseq_t *bns, const char *rg_line);
+
 // Same as mem_opt_init in bwamem.c
 libbwa_mem_opt *libbwa_mem_opt_init(void)
 {
     libbwa_mem_opt *o;
-    o = calloc(1, sizeof(mem_opt_t));
+    o = calloc(1, sizeof(libbwa_mem_opt));
     o->flag = 0;
     o->a = 1; o->b = 4;
     o->o_del = o->o_ins = 6;
@@ -102,15 +104,6 @@ void convert_mem_opt(const libbwa_mem_opt *src, mem_opt_t *dst)
     dst->max_matesw = src->max_matesw;
     dst->max_hits = src->max_hits;
     memcpy(dst->mat, src->mat, sizeof(int8_t) * 25);
-}
-
-void bwa_fprint_sam_hdr(FILE *stream, const bntseq_t *bns, const char *rg_line)
-{
-	int i;
-	for (i = 0; i < bns->n_seqs; ++i)
-		err_fprintf(stream, "@SQ\tSN:%s\tLN:%d\n", bns->anns[i].name, bns->anns[i].len);
-	if (rg_line) err_printf("%s\n", rg_line);
-	err_fflush(stream);
 }
 
 // Modified based on main_mem in fastmap.c
