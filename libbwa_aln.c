@@ -60,74 +60,74 @@ void convert_aln_opt(const libbwa_aln_opt *src, gap_opt_t *dst)
 
 void libbwa_aln_core(const char *prefix, const char *fn_fa, const char *out ,const gap_opt_t *opt)
 {
-	int i, n_seqs, tot_seqs = 0;
-	bwa_seq_t *seqs;
-	bwa_seqio_t *ks;
-	clock_t t;
-	bwt_t *bwt;
+    int i, n_seqs, tot_seqs = 0;
+    bwa_seq_t *seqs;
+    bwa_seqio_t *ks;
+    clock_t t;
+    bwt_t *bwt;
     FILE *fpo;
 
-	// initialization
-	ks = bwa_open_reads(opt->mode, fn_fa);
+    // initialization
+    ks = bwa_open_reads(opt->mode, fn_fa);
     fpo = xopen(out, "w");
 
-	{ // load BWT
-		char *str = (char*)calloc(strlen(prefix) + 10, 1);
-		strcpy(str, prefix); strcat(str, ".bwt");  bwt = bwt_restore_bwt(str);
-		free(str);
-	}
+    { // load BWT
+        char *str = (char*)calloc(strlen(prefix) + 10, 1);
+        strcpy(str, prefix); strcat(str, ".bwt");  bwt = bwt_restore_bwt(str);
+        free(str);
+    }
 
-	// core loop
-	err_fwrite(SAI_MAGIC, 1, 4, fpo);
-	err_fwrite(opt, sizeof(gap_opt_t), 1, fpo);
-	while ((seqs = bwa_read_seq(ks, 0x40000, &n_seqs, opt->mode, opt->trim_qual)) != 0) {
-		tot_seqs += n_seqs;
-		t = clock();
+    // core loop
+    err_fwrite(SAI_MAGIC, 1, 4, fpo);
+    err_fwrite(opt, sizeof(gap_opt_t), 1, fpo);
+    while ((seqs = bwa_read_seq(ks, 0x40000, &n_seqs, opt->mode, opt->trim_qual)) != 0) {
+        tot_seqs += n_seqs;
+        t = clock();
 
-		fprintf(stderr, "[bwa_aln_core] calculate SA coordinate... ");
+        fprintf(stderr, "[bwa_aln_core] calculate SA coordinate... ");
 
 #ifdef HAVE_PTHREAD
-		if (opt->n_threads <= 1) { // no multi-threading at all
-			bwa_cal_sa_reg_gap(0, bwt, n_seqs, seqs, opt);
-		} else {
-			pthread_t *tid;
-			pthread_attr_t attr;
-			thread_aux_t *data;
-			int j;
-			pthread_attr_init(&attr);
-			pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_JOINABLE);
-			data = (thread_aux_t*)calloc(opt->n_threads, sizeof(thread_aux_t));
-			tid = (pthread_t*)calloc(opt->n_threads, sizeof(pthread_t));
-			for (j = 0; j < opt->n_threads; ++j) {
-				data[j].tid = j; data[j].bwt = bwt;
-				data[j].n_seqs = n_seqs; data[j].seqs = seqs; data[j].opt = opt;
-				pthread_create(&tid[j], &attr, worker, data + j);
-			}
-			for (j = 0; j < opt->n_threads; ++j) pthread_join(tid[j], 0);
-			free(data); free(tid);
-		}
+        if (opt->n_threads <= 1) { // no multi-threading at all
+            bwa_cal_sa_reg_gap(0, bwt, n_seqs, seqs, opt);
+        } else {
+            pthread_t *tid;
+            pthread_attr_t attr;
+            thread_aux_t *data;
+            int j;
+            pthread_attr_init(&attr);
+            pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_JOINABLE);
+            data = (thread_aux_t*)calloc(opt->n_threads, sizeof(thread_aux_t));
+            tid = (pthread_t*)calloc(opt->n_threads, sizeof(pthread_t));
+            for (j = 0; j < opt->n_threads; ++j) {
+                data[j].tid = j; data[j].bwt = bwt;
+                data[j].n_seqs = n_seqs; data[j].seqs = seqs; data[j].opt = opt;
+                pthread_create(&tid[j], &attr, worker, data + j);
+            }
+            for (j = 0; j < opt->n_threads; ++j) pthread_join(tid[j], 0);
+            free(data); free(tid);
+        }
 #else
-		bwa_cal_sa_reg_gap(0, bwt, n_seqs, seqs, opt);
+        bwa_cal_sa_reg_gap(0, bwt, n_seqs, seqs, opt);
 #endif
 
-		fprintf(stderr, "%.2f sec\n", (float)(clock() - t) / CLOCKS_PER_SEC);
+        fprintf(stderr, "%.2f sec\n", (float)(clock() - t) / CLOCKS_PER_SEC);
 
-		t = clock();
-		fprintf(stderr, "[bwa_aln_core] write to the disk... ");
-		for (i = 0; i < n_seqs; ++i) {
-			bwa_seq_t *p = seqs + i;
-			err_fwrite(&p->n_aln, 4, 1, fpo);
-			if (p->n_aln) err_fwrite(p->aln, sizeof(bwt_aln1_t), p->n_aln, fpo);
-		}
-		fprintf(stderr, "%.2f sec\n", (float)(clock() - t) / CLOCKS_PER_SEC);
+        t = clock();
+        fprintf(stderr, "[bwa_aln_core] write to the disk... ");
+        for (i = 0; i < n_seqs; ++i) {
+            bwa_seq_t *p = seqs + i;
+            err_fwrite(&p->n_aln, 4, 1, fpo);
+            if (p->n_aln) err_fwrite(p->aln, sizeof(bwt_aln1_t), p->n_aln, fpo);
+        }
+        fprintf(stderr, "%.2f sec\n", (float)(clock() - t) / CLOCKS_PER_SEC);
 
-		bwa_free_read_seq(n_seqs, seqs);
-		fprintf(stderr, "[bwa_aln_core] %d sequences have been processed.\n", tot_seqs);
-	}
+        bwa_free_read_seq(n_seqs, seqs);
+        fprintf(stderr, "[bwa_aln_core] %d sequences have been processed.\n", tot_seqs);
+    }
 
-	// destroy
-	bwt_destroy(bwt);
-	bwa_seq_close(ks);
+    // destroy
+    bwt_destroy(bwt);
+    bwa_seq_close(ks);
     err_fclose(fpo);
 }
 
