@@ -35,8 +35,6 @@ $ make install
 Usage
 -----
 
-Current libbwa supports 'index', 'aln', 'samse', 'sw' and 'mem' functions.
-
 ```c
 # include <libbwa.h>
 
@@ -67,6 +65,17 @@ void samse_example(void)
     libbwa_samse_opt *opt = libbwa_samse_opt_init();
 
     libbwa_samse(db, sai, read, out, opt);
+}
+
+void sampe_example(void)
+{
+    char *db = "path/to/reference.fa";
+    char *sai1 = "path/to/file1.sai", *sai2 = "path/to/file2.sai";
+    char *read1 = "path/to/read1.fq", *read2 = "path/to/read2.fq";
+    char *out = "path/to/out.sam";
+    libbwa_sampe_opt *opt = libbwa_sampe_opt_init();
+
+    libbwa_sampe(db, sai1, sai2, read1, read2, out, opt);
 }
 
 void sw_example(void)

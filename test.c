@@ -52,6 +52,16 @@ void libbwa_samse_test(void)
     CU_ASSERT(libbwa_samse(db, sai, read, out, opt) == 0);
 }
 
+void libbwa_sampe_test(void)
+{
+    char *db = TEST_DB;
+    char *sai1 = TEST_SAI, *sai2 = TEST_SAI;
+    char *read1 = TEST_READ, *read2 = TEST_READ;
+    char *out = "/tmp/libbwa_sampe_test.sam";
+    libbwa_sampe_opt *opt = libbwa_sampe_opt_init();
+    CU_ASSERT(libbwa_sampe(db, sai1, sai2, read1, read2, out, opt) == 0);
+}
+
 void libbwa_sw_test(void)
 {
     char *db = TEST_DB;
@@ -95,6 +105,11 @@ int main(int argc, char *argv[])
    }
 
    if (NULL == CU_add_test(pSuite, "samse test", libbwa_samse_test)) {
+      CU_cleanup_registry();
+      return CU_get_error();
+   }
+
+   if (NULL == CU_add_test(pSuite, "sampe test", libbwa_sampe_test)) {
       CU_cleanup_registry();
       return CU_get_error();
    }

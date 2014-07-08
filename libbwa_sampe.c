@@ -1,23 +1,45 @@
-/* This include is added for libbwa. (2014-07-08) */
-#include "bwape.h"
+/*
+ * Copyright (C) 2014  Xcoo, Inc.
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
+/*
+ * This source implements public interfaces for using BWA functions from codes.
+ * Some codes included in this source are based on the original BWA codes.
+ * This source is based heavily on bwape.c.
+ */
+
+#include "libbwa.h"
 
 #include <unistd.h>
 #include <math.h>
-#include <stdlib.h>
-#include <time.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
+#include <time.h>
+
+#include "bwa.h"
 #include "bwtaln.h"
-#include "kvec.h"
+#include "bwape.h"
 #include "bntseq.h"
 #include "utils.h"
 #include "bwase.h"
-#include "bwa.h"
+#include "kvec.h"
 #include "ksw.h"
 
-#ifdef USE_MALLOC_WRAPPERS
-#  include "malloc_wrap.h"
-#endif
+extern void bwa_fprint_sam_hdr(FILE *stream, const bntseq_t *bns, const char *rg_line);
 
 typedef struct {
 	int n;
@@ -49,36 +71,38 @@ static kh_b128_t *g_hash;
 void bwa_aln2seq_core(int n_aln, const bwt_aln1_t *aln, bwa_seq_t *s, int set_main, int n_multi);
 void bwa_aln2seq(int n_aln, const bwt_aln1_t *aln, bwa_seq_t *s);
 int bwa_approx_mapQ(const bwa_seq_t *p, int mm);
-void bwa_print_sam1(const bntseq_t *bns, bwa_seq_t *p, const bwa_seq_t *mate, int mode, int max_top2);
-bntseq_t *bwa_open_nt(const char *prefix);
-void bwa_print_sam_SQ(const bntseq_t *bns);
+void libbwa_print_sam1(const bntseq_t *bns, bwa_seq_t *p, const bwa_seq_t *mate,
+                       int mode, int max_top2, FILE *out);
 
-pe_opt_t *bwa_init_pe_opt()
+// Based on bwa_init_pe_opt in bwtaln.c
+libbwa_sampe_opt *libbwa_sampe_opt_init(void)
 {
-	pe_opt_t *po;
-	po = (pe_opt_t*)calloc(1, sizeof(pe_opt_t));
-	po->max_isize = 500;
-	po->force_isize = 0;
-	po->max_occ = 100000;
-	po->n_multi = 3;
-	po->N_multi = 10;
-	po->type = BWA_PET_STD;
-	po->is_sw = 1;
-	po->ap_prior = 1e-5;
-	return po;
+    libbwa_sampe_opt *o;
+    o = (libbwa_sampe_opt *)calloc(1, sizeof(libbwa_sampe_opt));
+    o->max_isize = 500;
+    o->force_isize = 0;
+    o->max_occ = 100000;
+    o->n_multi = 3;
+    o->N_multi = 10;
+    o->type = BWA_PET_STD;
+    o->is_sw = 1;
+    o->ap_prior = 1e-5;
+    o->rg_line = 0;
+    return o;
 }
-/*
-static double ierfc(double x) // inverse erfc(); iphi(x) = M_SQRT2 *ierfc(2 * x);
-{
-	const double a = 0.140012;
-	double b, c;
-	b = log(x * (2 - x));
-	c = 2./M_PI/a + b / 2.;
-	return sqrt(sqrt(c * c - b / a) - c);
-}
-*/
 
-// for normal distribution, this is about 3std
+void convert_sampe_opt(const libbwa_sampe_opt *src, pe_opt_t *dst)
+{
+    dst->max_isize = src->max_isize;
+    dst->force_isize = src->force_isize;
+    dst->max_occ = src->max_occ;
+    dst->n_multi = src->n_multi;
+    dst->N_multi = src->N_multi;
+    dst->type = src->type;
+    dst->is_sw = src->is_sw;
+    dst->ap_prior = src->ap_prior;
+}
+
 #define OUTLIER_BOUND 2.0
 
 static int infer_isize(int n_seqs, bwa_seq_t *seqs[2], isize_info_t *ii, double ap_prior, int64_t L)
@@ -257,11 +281,11 @@ static int pairing(bwa_seq_t *p[2], pe_data_t *d, const pe_opt_t *opt, int s_mm,
 }
 
 typedef struct {
-	kvec_t(bwt_aln1_t) aln;
+    kvec_t(bwt_aln1_t) aln;
 } aln_buf_t;
 
-int bwa_cal_pac_pos_pe(const bntseq_t *bns, const char *prefix, bwt_t *const _bwt, int n_seqs, bwa_seq_t *seqs[2], FILE *fp_sa[2], isize_info_t *ii,
-					   const pe_opt_t *opt, const gap_opt_t *gopt, const isize_info_t *last_ii)
+int libbwa_cal_pac_pos_pe(const bntseq_t *bns, const char *prefix, bwt_t *const _bwt, int n_seqs, bwa_seq_t *seqs[2], FILE *fp_sa[2], isize_info_t *ii,
+                          const pe_opt_t *opt, const gap_opt_t *gopt, const isize_info_t *last_ii)
 {
 	int i, j, cnt_chg = 0;
 	char str[1024];
@@ -408,8 +432,7 @@ int bwa_cal_pac_pos_pe(const bntseq_t *bns, const char *prefix, bwt_t *const _bw
 #define SW_MIN_MATCH_LEN 20
 #define SW_MIN_MAPQ 17
 
-// cnt = n_mm<<16 | n_gapo<<8 | n_gape
-bwa_cigar_t *bwa_sw_core(bwtint_t l_pac, const ubyte_t *pacseq, int len, const ubyte_t *seq, int64_t *beg, int reglen, int *n_cigar, uint32_t *_cnt)
+bwa_cigar_t *libbwa_sw_core(bwtint_t l_pac, const ubyte_t *pacseq, int len, const ubyte_t *seq, int64_t *beg, int reglen, int *n_cigar, uint32_t *_cnt)
 {
 	kswr_t r;
 	uint32_t *cigar32 = 0;
@@ -496,7 +519,7 @@ bwa_cigar_t *bwa_sw_core(bwtint_t l_pac, const ubyte_t *pacseq, int len, const u
 	return cigar;
 }
 
-ubyte_t *bwa_paired_sw(const bntseq_t *bns, const ubyte_t *_pacseq, int n_seqs, bwa_seq_t *seqs[2], const pe_opt_t *popt, const isize_info_t *ii)
+ubyte_t *libbwa_paired_sw(const bntseq_t *bns, const ubyte_t *_pacseq, int n_seqs, bwa_seq_t *seqs[2], const pe_opt_t *popt, const isize_info_t *ii)
 {
 	ubyte_t *pacseq;
 	int i;
@@ -570,7 +593,7 @@ ubyte_t *bwa_paired_sw(const bntseq_t *bns, const ubyte_t *_pacseq, int n_seqs, 
 					}
 				}
 				// perform SW alignment
-				cigar[k] = bwa_sw_core(bns->l_pac, pacseq, p[k]->len, seq, &beg[k], end[k] - beg[k], &n_cigar[k], &cnt[k]);
+				cigar[k] = libbwa_sw_core(bns->l_pac, pacseq, p[k]->len, seq, &beg[k], end[k] - beg[k], &n_cigar[k], &cnt[k]);
 				if (cigar[k] && p[k]->type != BWA_TYPE_NO_MATCH) { // re-evaluate cigar[k]
 					int s_old, clip = 0, s_new;
 					if (__cigar_op(cigar[k][0]) == 3) clip += __cigar_len(cigar[k][0]);
@@ -624,163 +647,140 @@ ubyte_t *bwa_paired_sw(const bntseq_t *bns, const ubyte_t *_pacseq, int n_seqs, 
 	return pacseq;
 }
 
-void bwa_sai2sam_pe_core(const char *prefix, char *const fn_sa[2], char *const fn_fa[2], pe_opt_t *popt, const char *rg_line)
+// Based on bwa_sai2sam_pe_core in bwape.c
+void libbwa_sai2sam_pe_core(const char *prefix,
+                            const char *sai1, const char *sai2,
+                            const char *read1, const char *read2,
+                            pe_opt_t *popt, const char *rg_line, FILE *out)
 {
-	extern bwa_seqio_t *bwa_open_reads(int mode, const char *fn_fa);
-	int i, j, n_seqs, tot_seqs = 0;
-	bwa_seq_t *seqs[2];
-	bwa_seqio_t *ks[2];
-	clock_t t;
-	bntseq_t *bns;
-	FILE *fp_sa[2];
-	gap_opt_t opt, opt0;
-	khint_t iter;
-	isize_info_t last_ii; // this is for the last batch of reads
-	char str[1024], magic[2][4];
-	bwt_t *bwt;
-	uint8_t *pac;
+    extern bwa_seqio_t *bwa_open_reads(int mode, const char *fn_fa);
+    int i, j, n_seqs, tot_seqs = 0;
+    bwa_seq_t *seqs[2];
+    bwa_seqio_t *ks[2];
+    clock_t t;
+    bntseq_t *bns;
+    FILE *fp_sa[2];
+    gap_opt_t opt, opt0;
+    khint_t iter;
+    isize_info_t last_ii; // this is for the last batch of reads
+    char str[1024], magic[2][4];
+    bwt_t *bwt;
+    uint8_t *pac;
 
-	// initialization
-	bwase_initialize(); // initialize g_log_n[] in bwase.c
-	pac = 0; bwt = 0;
-	for (i = 1; i != 256; ++i) g_log_n[i] = (int)(4.343 * log(i) + 0.5);
-	bns = bns_restore(prefix);
-	srand48(bns->seed);
-	fp_sa[0] = xopen(fn_sa[0], "r");
-	fp_sa[1] = xopen(fn_sa[1], "r");
-	g_hash = kh_init(b128);
-	last_ii.avg = -1.0;
+    // initialization
+    bwase_initialize(); // initialize g_log_n[] in bwase.c
+    pac = 0; bwt = 0;
+    for (i = 1; i != 256; ++i) g_log_n[i] = (int)(4.343 * log(i) + 0.5);
+    bns = bns_restore(prefix);
+    srand48(bns->seed);
+    fp_sa[0] = xopen(sai1, "r");
+    fp_sa[1] = xopen(sai2, "r");
+    g_hash = kh_init(b128);
+    last_ii.avg = -1.0;
 
-	err_fread_noeof(magic[0], 1, 4, fp_sa[0]);
-	err_fread_noeof(magic[1], 1, 4, fp_sa[1]);
-	if (strncmp(magic[0], SAI_MAGIC, 4) != 0 || strncmp(magic[1], SAI_MAGIC, 4) != 0) {
-		fprintf(stderr, "[E::%s] Unmatched SAI magic. Please re-run `aln' with the same version of bwa.\n", __func__);
-		exit(1);
-	}
-	err_fread_noeof(&opt, sizeof(gap_opt_t), 1, fp_sa[0]);
-	ks[0] = bwa_open_reads(opt.mode, fn_fa[0]);
-	opt0 = opt;
-	err_fread_noeof(&opt, sizeof(gap_opt_t), 1, fp_sa[1]); // overwritten!
-	ks[1] = bwa_open_reads(opt.mode, fn_fa[1]);
-	{ // for Illumina alignment only
-		if (popt->is_preload) {
-			strcpy(str, prefix); strcat(str, ".bwt");  bwt = bwt_restore_bwt(str);
-			strcpy(str, prefix); strcat(str, ".sa"); bwt_restore_sa(str, bwt);
-			pac = (ubyte_t*)calloc(bns->l_pac/4+1, 1);
-			err_rewind(bns->fp_pac);
-			err_fread_noeof(pac, 1, bns->l_pac/4+1, bns->fp_pac);
-		}
-	}
+    err_fread_noeof(magic[0], 1, 4, fp_sa[0]);
+    err_fread_noeof(magic[1], 1, 4, fp_sa[1]);
+    if (strncmp(magic[0], SAI_MAGIC, 4) != 0 || strncmp(magic[1], SAI_MAGIC, 4) != 0) {
+        fprintf(stderr, "[E::%s] Unmatched SAI magic. Please re-run `aln' with the same version of bwa.\n", __func__);
+        exit(1);
+    }
+    err_fread_noeof(&opt, sizeof(gap_opt_t), 1, fp_sa[0]);
+    ks[0] = bwa_open_reads(opt.mode, read1);
+    opt0 = opt;
+    err_fread_noeof(&opt, sizeof(gap_opt_t), 1, fp_sa[1]); // overwritten!
+    ks[1] = bwa_open_reads(opt.mode, read2);
+    { // for Illumina alignment only
+        if (popt->is_preload) {
+            strcpy(str, prefix); strcat(str, ".bwt");  bwt = bwt_restore_bwt(str);
+            strcpy(str, prefix); strcat(str, ".sa"); bwt_restore_sa(str, bwt);
+            pac = (ubyte_t*)calloc(bns->l_pac/4+1, 1);
+            err_rewind(bns->fp_pac);
+            err_fread_noeof(pac, 1, bns->l_pac/4+1, bns->fp_pac);
+        }
+    }
 
-	// core loop
-	bwa_print_sam_hdr(bns, rg_line);
-	while ((seqs[0] = bwa_read_seq(ks[0], 0x40000, &n_seqs, opt0.mode, opt0.trim_qual)) != 0) {
-		int cnt_chg;
-		isize_info_t ii;
-		ubyte_t *pacseq;
+    // core loop
+    bwa_fprint_sam_hdr(out, bns, rg_line);
+    while ((seqs[0] = bwa_read_seq(ks[0], 0x40000, &n_seqs, opt0.mode, opt0.trim_qual)) != 0) {
+        int cnt_chg;
+        isize_info_t ii;
+        ubyte_t *pacseq;
 
-		seqs[1] = bwa_read_seq(ks[1], 0x40000, &n_seqs, opt.mode, opt.trim_qual);
-		tot_seqs += n_seqs;
-		t = clock();
+        seqs[1] = bwa_read_seq(ks[1], 0x40000, &n_seqs, opt.mode, opt.trim_qual);
+        tot_seqs += n_seqs;
+        t = clock();
 
-		fprintf(stderr, "[bwa_sai2sam_pe_core] convert to sequence coordinate... \n");
-		cnt_chg = bwa_cal_pac_pos_pe(bns, prefix, bwt, n_seqs, seqs, fp_sa, &ii, popt, &opt, &last_ii);
-		fprintf(stderr, "[bwa_sai2sam_pe_core] time elapses: %.2f sec\n", (float)(clock() - t) / CLOCKS_PER_SEC); t = clock();
-		fprintf(stderr, "[bwa_sai2sam_pe_core] changing coordinates of %d alignments.\n", cnt_chg);
+        fprintf(stderr, "[bwa_sai2sam_pe_core] convert to sequence coordinate... \n");
+        cnt_chg = libbwa_cal_pac_pos_pe(bns, prefix, bwt, n_seqs, seqs, fp_sa, &ii, popt, &opt, &last_ii);
+        fprintf(stderr, "[bwa_sai2sam_pe_core] time elapses: %.2f sec\n", (float)(clock() - t) / CLOCKS_PER_SEC); t = clock();
+        fprintf(stderr, "[bwa_sai2sam_pe_core] changing coordinates of %d alignments.\n", cnt_chg);
 
-		fprintf(stderr, "[bwa_sai2sam_pe_core] align unmapped mate...\n");
-		pacseq = bwa_paired_sw(bns, pac, n_seqs, seqs, popt, &ii);
-		fprintf(stderr, "[bwa_sai2sam_pe_core] time elapses: %.2f sec\n", (float)(clock() - t) / CLOCKS_PER_SEC); t = clock();
+        fprintf(stderr, "[bwa_sai2sam_pe_core] align unmapped mate...\n");
+        pacseq = libbwa_paired_sw(bns, pac, n_seqs, seqs, popt, &ii);
+        fprintf(stderr, "[bwa_sai2sam_pe_core] time elapses: %.2f sec\n", (float)(clock() - t) / CLOCKS_PER_SEC); t = clock();
 
-		fprintf(stderr, "[bwa_sai2sam_pe_core] refine gapped alignments... ");
-		for (j = 0; j < 2; ++j)
-			bwa_refine_gapped(bns, n_seqs, seqs[j], pacseq);
-		fprintf(stderr, "%.2f sec\n", (float)(clock() - t) / CLOCKS_PER_SEC); t = clock();
-		if (pac == 0) free(pacseq);
+        fprintf(stderr, "[bwa_sai2sam_pe_core] refine gapped alignments... ");
+        for (j = 0; j < 2; ++j)
+            bwa_refine_gapped(bns, n_seqs, seqs[j], pacseq);
+        fprintf(stderr, "%.2f sec\n", (float)(clock() - t) / CLOCKS_PER_SEC); t = clock();
+        if (pac == 0) free(pacseq);
 
-		fprintf(stderr, "[bwa_sai2sam_pe_core] print alignments... ");
-		for (i = 0; i < n_seqs; ++i) {
-			bwa_seq_t *p[2];
-			p[0] = seqs[0] + i; p[1] = seqs[1] + i;
-			if (p[0]->bc[0] || p[1]->bc[0]) {
-				strcat(p[0]->bc, p[1]->bc);
-				strcpy(p[1]->bc, p[0]->bc);
-			}
-			bwa_print_sam1(bns, p[0], p[1], opt.mode, opt.max_top2);
-			bwa_print_sam1(bns, p[1], p[0], opt.mode, opt.max_top2);
-			if (strcmp(p[0]->name, p[1]->name) != 0) err_fatal(__func__, "paired reads have different names: \"%s\", \"%s\"\n", p[0]->name, p[1]->name);
-		}
-		fprintf(stderr, "%.2f sec\n", (float)(clock() - t) / CLOCKS_PER_SEC); t = clock();
+        fprintf(stderr, "[bwa_sai2sam_pe_core] print alignments... ");
+        for (i = 0; i < n_seqs; ++i) {
+            bwa_seq_t *p[2];
+            p[0] = seqs[0] + i; p[1] = seqs[1] + i;
+            if (p[0]->bc[0] || p[1]->bc[0]) {
+                strcat(p[0]->bc, p[1]->bc);
+                strcpy(p[1]->bc, p[0]->bc);
+            }
+            libbwa_print_sam1(bns, p[0], p[1], opt.mode, opt.max_top2, out);
+            libbwa_print_sam1(bns, p[1], p[0], opt.mode, opt.max_top2, out);
+            if (strcmp(p[0]->name, p[1]->name) != 0) err_fatal(__func__, "paired reads have different names: \"%s\", \"%s\"\n", p[0]->name, p[1]->name);
+        }
+        fprintf(stderr, "%.2f sec\n", (float)(clock() - t) / CLOCKS_PER_SEC); t = clock();
 
-		for (j = 0; j < 2; ++j)
-			bwa_free_read_seq(n_seqs, seqs[j]);
-		fprintf(stderr, "[bwa_sai2sam_pe_core] %d sequences have been processed.\n", tot_seqs);
-		last_ii = ii;
-	}
+        for (j = 0; j < 2; ++j)
+            bwa_free_read_seq(n_seqs, seqs[j]);
+        fprintf(stderr, "[bwa_sai2sam_pe_core] %d sequences have been processed.\n", tot_seqs);
+        last_ii = ii;
+    }
 
-	// destroy
-	bns_destroy(bns);
-	for (i = 0; i < 2; ++i) {
-		bwa_seq_close(ks[i]);
-		err_fclose(fp_sa[i]);
-	}
-	for (iter = kh_begin(g_hash); iter != kh_end(g_hash); ++iter)
-		if (kh_exist(g_hash, iter)) free(kh_val(g_hash, iter).a);
-	kh_destroy(b128, g_hash);
-	if (pac) {
-		free(pac); bwt_destroy(bwt);
-	}
+    // destroy
+    bns_destroy(bns);
+    for (i = 0; i < 2; ++i) {
+        bwa_seq_close(ks[i]);
+        err_fclose(fp_sa[i]);
+    }
+    for (iter = kh_begin(g_hash); iter != kh_end(g_hash); ++iter)
+        if (kh_exist(g_hash, iter)) free(kh_val(g_hash, iter).a);
+    kh_destroy(b128, g_hash);
+    if (pac) {
+        free(pac); bwt_destroy(bwt);
+    }
 }
 
-int bwa_sai2sam_pe(int argc, char *argv[])
+// Based on bwa_sai2sam_pe in bwape.c
+int libbwa_sampe(const char *db, const char *sai1, const char *sai2,
+                 const char *read1, const char *read2, const char *out,
+                 const libbwa_sampe_opt *opt)
 {
-	int c;
-	pe_opt_t *popt;
-	char *prefix, *rg_line = 0;
+    FILE *fpo;
 
-	popt = bwa_init_pe_opt();
-	while ((c = getopt(argc, argv, "a:o:sPn:N:c:f:Ar:")) >= 0) {
-		switch (c) {
-		case 'r':
-			if ((rg_line = bwa_set_rg(optarg)) == 0) return 1;
-			break;
-		case 'a': popt->max_isize = atoi(optarg); break;
-		case 'o': popt->max_occ = atoi(optarg); break;
-		case 's': popt->is_sw = 0; break;
-		case 'P': popt->is_preload = 1; break;
-		case 'n': popt->n_multi = atoi(optarg); break;
-		case 'N': popt->N_multi = atoi(optarg); break;
-		case 'c': popt->ap_prior = atof(optarg); break;
-		case 'f': xreopen(optarg, "w", stdout); break;
-		case 'A': popt->force_isize = 1; break;
-		default: return 1;
-		}
-	}
+    pe_opt_t *popt;
+    char *prefix;
 
-	if (optind + 5 > argc) {
-		fprintf(stderr, "\n");
-		fprintf(stderr, "Usage:   bwa sampe [options] <prefix> <in1.sai> <in2.sai> <in1.fq> <in2.fq>\n\n");
-		fprintf(stderr, "Options: -a INT   maximum insert size [%d]\n", popt->max_isize);
-		fprintf(stderr, "         -o INT   maximum occurrences for one end [%d]\n", popt->max_occ);
-		fprintf(stderr, "         -n INT   maximum hits to output for paired reads [%d]\n", popt->n_multi);
-		fprintf(stderr, "         -N INT   maximum hits to output for discordant pairs [%d]\n", popt->N_multi);
-		fprintf(stderr, "         -c FLOAT prior of chimeric rate (lower bound) [%.1le]\n", popt->ap_prior);
-        fprintf(stderr, "         -f FILE  sam file to output results to [stdout]\n");
-		fprintf(stderr, "         -r STR   read group header line such as `@RG\\tID:foo\\tSM:bar' [null]\n");
-		fprintf(stderr, "         -P       preload index into memory (for base-space reads only)\n");
-		fprintf(stderr, "         -s       disable Smith-Waterman for the unmapped mate\n");
-		fprintf(stderr, "         -A       disable insert size estimate (force -s)\n\n");
-		fprintf(stderr, "Notes: 1. For SOLiD reads, <in1.fq> corresponds R3 reads and <in2.fq> to F3.\n");
-		fprintf(stderr, "       2. For reads shorter than 30bp, applying a smaller -o is recommended to\n");
-		fprintf(stderr, "          to get a sensible speed at the cost of pairing accuracy.\n");
-		fprintf(stderr, "\n");
-		return 1;
-	}
-	if ((prefix = bwa_idx_infer_prefix(argv[optind])) == 0) {
-		fprintf(stderr, "[%s] fail to locate the index\n", __func__);
-		return 1;
-	}
-	bwa_sai2sam_pe_core(prefix, argv + optind + 1, argv + optind+3, popt, rg_line);
-	free(prefix); free(popt);
-	return 0;
+    popt = bwa_init_pe_opt();
+    convert_sampe_opt(opt, popt);
+
+    if ((prefix = bwa_idx_infer_prefix(db)) == 0) {
+        fprintf(stderr, "[%s] fail to locate the index\n", __func__);
+        return 1;
+    }
+
+    fpo = xopen(out, "w");
+
+    libbwa_sai2sam_pe_core(db, sai1, sai2, read1, read2, popt, opt->rg_line, fpo);
+    err_fclose(fpo);
+    free(prefix); free(popt);
+    return 0;
 }

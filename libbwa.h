@@ -35,6 +35,9 @@
 extern "C" {
 #endif
 
+// index
+// --------------------
+
 typedef enum {
     LIBBWA_INDEX_ALGO_AUTO = 0,
     LIBBWA_INDEX_ALGO_DIV = 1,
@@ -44,7 +47,10 @@ typedef enum {
 
 int libbwa_index(const char *db, const char *prefix_, libbwa_index_algo algo, int is_64);
 
-// Based on pe_opt_t in bwtaln.h
+// aln
+// --------------------
+
+// Based on gap_opt_t in bwtaln.h
 typedef struct {
 	int s_mm, s_gapo, s_gape;
 	int mode; // bit 24-31 are the barcode length
@@ -62,6 +68,9 @@ libbwa_aln_opt *libbwa_aln_opt_init(void);
 
 int libbwa_aln(const char *db, const char *read, const char *out, const libbwa_aln_opt *opt_);
 
+// samse
+// --------------------
+
 typedef struct {
     int n_occ;
     char *rg_line;
@@ -70,6 +79,29 @@ typedef struct {
 libbwa_samse_opt *libbwa_samse_opt_init(void);
 
 int libbwa_samse(const char *db, const char *sai, const char *read, const char *out, const libbwa_samse_opt *opt);
+
+// sampe
+// --------------------
+
+// Based on pe_opt_t in bwtaln.h
+typedef struct {
+    int max_isize, force_isize;
+    int max_occ;
+    int n_multi, N_multi;
+    int type, is_sw, is_preload;
+    double ap_prior;
+    char *rg_line;
+} libbwa_sampe_opt;
+
+// Based on bwa_init_pe_opt in bwtaln.h
+libbwa_sampe_opt *libbwa_sampe_opt_init(void);
+
+int libbwa_sampe(const char *db, const char *sai1, const char *sai2,
+                 const char *read1, const char *read2, const char *out,
+                 const libbwa_sampe_opt *opt);
+
+// bwasw
+// --------------------
 
 // Based on bsw2opt_t in bwtsw2.h
 typedef struct {
@@ -84,6 +116,9 @@ typedef struct {
 libbwa_sw_opt *libbwa_sw_opt_init(void);
 
 int libbwa_sw(const char *db, const char *read, const char *mate, const char *out, const libbwa_sw_opt *opt_);
+
+// mem
+// --------------------
 
 // Same as mem_opt_t in bwamem.h
 typedef struct {

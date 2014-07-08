@@ -17,6 +17,7 @@ set(BWA_SOURCES
   libbwa_index.c
   libbwa_aln.c
   libbwa_samse.c
+  libbwa_sampe.c
   libbwa_sw.c
   libbwa_mem.c
   utils.c
