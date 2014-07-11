@@ -171,6 +171,8 @@ int libbwa_pac2bwt(const char *pac, const char *out, int use_is);
 // pac2bwtgen
 // --------------------
 
+int libbwa_bwtgen(const char *pac, const char *out);
+
 // TODO
 
 // bwtupdate

@@ -97,56 +97,39 @@ void libbwa_pac2bwt_test(void)
     CU_ASSERT(libbwa_pac2bwt(pac, out, use_is) == 0);
 }
 
+void libbwa_bwtgen_test(void)
+{
+    char *pac = TEST_PAC;
+    char *out = "/tmp/libbwa_bwtgen_test.bwt";
+    CU_ASSERT(libbwa_bwtgen(pac, out) == 0);
+}
+
 int main(int argc, char *argv[])
 {
-    CU_pSuite pSuite = NULL;
     unsigned int num_failures;
+
+    CU_TestInfo tests[] = {
+        {"index test", libbwa_index_test},
+        {"aln test", libbwa_aln_test},
+        {"samse test", libbwa_samse_test},
+        {"sampe test", libbwa_sampe_test},
+        {"sw test", libbwa_sw_test},
+        {"mem test", libbwa_mem_test},
+        {"fa2pac test", libbwa_fa2pac_test},
+        {"pac2bwt test", libbwa_pac2bwt_test},
+        {"bwtgen test", libbwa_bwtgen_test},
+        CU_TEST_INFO_NULL
+    };
+
+    CU_SuiteInfo suites[] = {
+        {"Base_Suite", NULL, NULL, tests},
+        CU_SUITE_INFO_NULL
+    };
 
    if (CUE_SUCCESS != CU_initialize_registry())
       return CU_get_error();
 
-   pSuite = CU_add_suite("Base_Suite", NULL, NULL);
-   if (NULL == pSuite) {
-      CU_cleanup_registry();
-      return CU_get_error();
-   }
-
-   if (NULL == CU_add_test(pSuite, "index test", libbwa_index_test)) {
-      CU_cleanup_registry();
-      return CU_get_error();
-   }
-
-   if (NULL == CU_add_test(pSuite, "aln test", libbwa_aln_test)) {
-      CU_cleanup_registry();
-      return CU_get_error();
-   }
-
-   if (NULL == CU_add_test(pSuite, "samse test", libbwa_samse_test)) {
-      CU_cleanup_registry();
-      return CU_get_error();
-   }
-
-   if (NULL == CU_add_test(pSuite, "sampe test", libbwa_sampe_test)) {
-      CU_cleanup_registry();
-      return CU_get_error();
-   }
-
-   if (NULL == CU_add_test(pSuite, "sw test", libbwa_sw_test)) {
-      CU_cleanup_registry();
-      return CU_get_error();
-   }
-
-   if (NULL == CU_add_test(pSuite, "mem test", libbwa_mem_test)) {
-      CU_cleanup_registry();
-      return CU_get_error();
-   }
-
-   if (NULL == CU_add_test(pSuite, "fa2pac test", libbwa_fa2pac_test)) {
-      CU_cleanup_registry();
-      return CU_get_error();
-   }
-
-   if (NULL == CU_add_test(pSuite, "pac2bwt test", libbwa_pac2bwt_test)) {
+   if (CUE_SUCCESS != CU_register_suites(suites)) {
       CU_cleanup_registry();
       return CU_get_error();
    }
