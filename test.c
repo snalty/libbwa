@@ -22,6 +22,7 @@
 #define TEST_READ "../test-resources/test.fq"
 #define TEST_SAI "../test-resources/test.sai"
 #define TEST_PAC "../test-resources/test.fa.pac"
+#define TEST_BWT "../test-resources/test.fa.bwt"
 
 char *bwa_pg;
 
@@ -104,6 +105,12 @@ void libbwa_bwtgen_test(void)
     CU_ASSERT(libbwa_bwtgen(pac, out) == 0);
 }
 
+void libbwa_bwtupdate_test(void)
+{
+    char *bwt = TEST_BWT;
+    CU_ASSERT(libbwa_bwtupdate(bwt) == 0);
+}
+
 int main(int argc, char *argv[])
 {
     unsigned int num_failures;
@@ -118,6 +125,7 @@ int main(int argc, char *argv[])
         {"fa2pac test", libbwa_fa2pac_test},
         {"pac2bwt test", libbwa_pac2bwt_test},
         {"bwtgen test", libbwa_bwtgen_test},
+        // {"bwtupdate test", libbwa_bwtupdate_test},
         CU_TEST_INFO_NULL
     };
 

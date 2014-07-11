@@ -32,6 +32,17 @@
 #include "bntseq.h"
 #include "utils.h"
 
+// Based on bwa_bwtupdate in bwtindex.c
+int libbwa_bwtupdate(const char *bwt_)
+{
+    bwt_t *bwt;
+	bwt = bwt_restore_bwt(bwt_);
+	bwt_bwtupdate_core(bwt);
+	bwt_dump_bwt(bwt_, bwt);
+	bwt_destroy(bwt);
+	return 0;
+}
+
 // Modified based on bwa_index in bwtindex.c
 int libbwa_index(const char *db, const char *prefix_, libbwa_index_algo algo, int is_64)
 {
