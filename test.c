@@ -15,6 +15,10 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#if !defined(__APPLE__)
+#define _XOPEN_SOURCE 700
+#endif
+
 #include <ftw.h>
 #include <stdlib.h>
 #include <string.h>
