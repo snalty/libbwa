@@ -158,6 +158,31 @@ libbwa_mem_opt *libbwa_mem_opt_init(void);
 
 int libbwa_mem(const char *db, const char *read, const char *mate, const char *out, const libbwa_mem_opt *opt_);
 
+// fa2pac
+// --------------------
+
+int libbwa_fa2pac(const char *db, const char *prefix, int for_only);
+
+// pac2bwt
+// --------------------
+
+// TODO
+
+// pac2bwtgen
+// --------------------
+
+// TODO
+
+// bwtupdate
+// --------------------
+
+// TODO
+
+// bwt2sa
+// --------------------
+
+// TODO
+
 #ifdef __cplusplus
 }
 #endif

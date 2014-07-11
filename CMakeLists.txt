@@ -20,6 +20,7 @@ set(BWA_SOURCES
   libbwa_sampe.c
   libbwa_sw.c
   libbwa_mem.c
+  libbwa_fa2pac.c
   utils.c
   kthread.c
   kstring.c

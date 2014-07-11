@@ -80,6 +80,14 @@ void libbwa_mem_test(void)
     CU_ASSERT(libbwa_mem(db, read, NULL, out, opt) == 0);
 }
 
+void libbwa_fa2pac_test(void)
+{
+    char *db = TEST_DB;
+    char *prefix = "/tmp/libbwa_fa2pac_test.fa";
+    int for_only = 0;
+    CU_ASSERT(libbwa_fa2pac(db, prefix, for_only) == 0);
+}
+
 int main(int argc, char *argv[])
 {
     CU_pSuite pSuite = NULL;
@@ -120,6 +128,11 @@ int main(int argc, char *argv[])
    }
 
    if (NULL == CU_add_test(pSuite, "mem test", libbwa_mem_test)) {
+      CU_cleanup_registry();
+      return CU_get_error();
+   }
+
+   if (NULL == CU_add_test(pSuite, "fa2pac test", libbwa_fa2pac_test)) {
       CU_cleanup_registry();
       return CU_get_error();
    }
