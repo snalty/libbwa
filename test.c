@@ -21,6 +21,7 @@
 #define TEST_DB "../test-resources/test.fa"
 #define TEST_READ "../test-resources/test.fq"
 #define TEST_SAI "../test-resources/test.sai"
+#define TEST_PAC "../test-resources/test.fa.pac"
 
 char *bwa_pg;
 
@@ -88,6 +89,14 @@ void libbwa_fa2pac_test(void)
     CU_ASSERT(libbwa_fa2pac(db, prefix, for_only) == 0);
 }
 
+void libbwa_pac2bwt_test(void)
+{
+    char *pac = TEST_PAC;
+    char *out = "/tmp/libbwa_pac2bwt_test.bwt";
+    int use_is = 1;
+    CU_ASSERT(libbwa_pac2bwt(pac, out, use_is) == 0);
+}
+
 int main(int argc, char *argv[])
 {
     CU_pSuite pSuite = NULL;
@@ -133,6 +142,11 @@ int main(int argc, char *argv[])
    }
 
    if (NULL == CU_add_test(pSuite, "fa2pac test", libbwa_fa2pac_test)) {
+      CU_cleanup_registry();
+      return CU_get_error();
+   }
+
+   if (NULL == CU_add_test(pSuite, "pac2bwt test", libbwa_pac2bwt_test)) {
       CU_cleanup_registry();
       return CU_get_error();
    }

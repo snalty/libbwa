@@ -21,6 +21,7 @@ set(BWA_SOURCES
   libbwa_sw.c
   libbwa_mem.c
   libbwa_fa2pac.c
+  libbwa_pac2bwt.c
   utils.c
   kthread.c
   kstring.c

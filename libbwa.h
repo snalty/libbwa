@@ -166,7 +166,7 @@ int libbwa_fa2pac(const char *db, const char *prefix, int for_only);
 // pac2bwt
 // --------------------
 
-// TODO
+int libbwa_pac2bwt(const char *pac, const char *out, int use_is);
 
 // pac2bwtgen
 // --------------------
