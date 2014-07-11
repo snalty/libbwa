@@ -178,12 +178,10 @@ int libbwa_bwtgen(const char *pac, const char *out);
 
 int libbwa_bwtupdate(const char *bwt_);
 
-// TODO
-
 // bwt2sa
 // --------------------
 
-// TODO
+int libbwa_bwt2sa(const char *bwt_, const char *out, int sa_intv);
 
 #ifdef __cplusplus
 }

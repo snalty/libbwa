@@ -43,6 +43,17 @@ int libbwa_bwtupdate(const char *bwt_)
 	return 0;
 }
 
+// Based on bwa_bwt2sa in bwtindex.c
+int libbwa_bwt2sa(const char *bwt_, const char *out, int sa_intv)
+{
+	bwt_t *bwt;
+	bwt = bwt_restore_bwt(bwt_);
+	bwt_cal_sa(bwt, sa_intv);
+	bwt_dump_sa(out, bwt);
+	bwt_destroy(bwt);
+	return 0;
+}
+
 // Modified based on bwa_index in bwtindex.c
 int libbwa_index(const char *db, const char *prefix_, libbwa_index_algo algo, int is_64)
 {

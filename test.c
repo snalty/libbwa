@@ -111,6 +111,14 @@ void libbwa_bwtupdate_test(void)
     CU_ASSERT(libbwa_bwtupdate(bwt) == 0);
 }
 
+void libbwa_bwt2sa_test(void)
+{
+    char *bwt = TEST_BWT;
+    char *out = "/tmp/libbwa_bwt2sa_test.sa";
+    int sa_intv = 32;
+    CU_ASSERT(libbwa_bwt2sa(bwt, out, sa_intv) == 0);
+}
+
 int main(int argc, char *argv[])
 {
     unsigned int num_failures;
@@ -126,6 +134,7 @@ int main(int argc, char *argv[])
         {"pac2bwt test", libbwa_pac2bwt_test},
         {"bwtgen test", libbwa_bwtgen_test},
         // {"bwtupdate test", libbwa_bwtupdate_test},
+        {"bwt2sa test", libbwa_bwt2sa_test},
         CU_TEST_INFO_NULL
     };
 
