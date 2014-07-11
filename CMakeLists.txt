@@ -1,9 +1,7 @@
-cmake_minimum_required(VERSION 2.8)
+cmake_minimum_required(VERSION 2.6)
 
 project(bwa C)
 
-set(CMAKE_C_COMPILER clang)
-set(CMAKE_CXX_COMPILER clang++)
 find_package(Threads)
 find_package(ZLIB)
 
@@ -58,15 +56,15 @@ include_directories(${PROJECT_SOURCE_DIR})
 
 set(SERIAL "0.7.9a")
 set(SOSERIAL "0.7.9a")
-add_library(bwa SHARED main.c ${BWA_SOURCES})
+add_library(bwa SHARED ${BWA_SOURCES})
 set_target_properties(bwa PROPERTIES VERSION ${SERIAL} SOVERSION ${SOSERIAL} MACOSX_RPATH 1)
 target_link_libraries(bwa ${CMAKE_THREAD_LIBS_INIT} m z)
 
 if(BUILD_TESTING)
   enable_testing()
-  add_executable(bwa_test test.c ${BWA_SOURCES})
+  add_executable(bwa_test test.c)
   add_test(bwa_test bwa_test)
-  target_link_libraries(bwa_test ${CMAKE_THREAD_LIBS_INIT} m z cunit)
+  target_link_libraries(bwa_test bwa ${CMAKE_THREAD_LIBS_INIT} m z cunit)
 endif(BUILD_TESTING)
 
 install(TARGETS bwa LIBRARY DESTINATION lib)

@@ -19,6 +19,8 @@
 
 #include "utils.h"
 
+char *bwa_pg;
+
 void bwa_fprint_sam_hdr(FILE *stream, const bntseq_t *bns, const char *rg_line)
 {
 	int i;

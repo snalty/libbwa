@@ -17,7 +17,6 @@ Requirements
 ------------
 
 - CMake
-- Clang
 - zlib
 - CUnit (optional)
 
