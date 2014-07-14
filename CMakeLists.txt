@@ -18,6 +18,7 @@ set(BWA_SOURCES
   libbwa_sampe.c
   libbwa_sw.c
   libbwa_mem.c
+  libbwa_fastmap.c
   libbwa_fa2pac.c
   libbwa_pac2bwt.c
   libbwa_bwtgen.c

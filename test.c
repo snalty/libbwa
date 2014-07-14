@@ -132,6 +132,16 @@ void libbwa_mem_test(void)
     CU_ASSERT(libbwa_mem(db, read, NULL, out, opt) == 0);
 }
 
+void libbwa_fastmap_test(void)
+{
+    char *db = TEST_DB;
+    char *read = TEST_READ;
+    char out[45];
+    sprintf(out, "%s/libbwa_fastmap_test", tempdir);
+    libbwa_fastmap_opt *opt = libbwa_fastmap_opt_init();
+    CU_ASSERT(libbwa_fastmap(db, read, out, opt) == 0);
+}
+
 void libbwa_fa2pac_test(void)
 {
     char *db = TEST_DB;
@@ -188,6 +198,7 @@ int main(int argc, char *argv[])
         {"sampe test", libbwa_sampe_test},
         {"sw test", libbwa_sw_test},
         {"mem test", libbwa_mem_test},
+        {"fastmap test", libbwa_fastmap_test},
         {"fa2pac test", libbwa_fa2pac_test},
         {"pac2bwt test", libbwa_pac2bwt_test},
         {"bwtgen test", libbwa_bwtgen_test},

@@ -158,6 +158,24 @@ libbwa_mem_opt *libbwa_mem_opt_init(void);
 
 int libbwa_mem(const char *db, const char *read, const char *mate, const char *out, const libbwa_mem_opt *opt_);
 
+// fastmap
+// --------------------
+
+typedef struct {
+    int print_seq;
+    int min_iwidth;
+    int min_len;
+} libbwa_fastmap_opt;
+
+libbwa_fastmap_opt *libbwa_fastmap_opt_init(void);
+
+int libbwa_fastmap(const char *db, const char *read, const char *out, const libbwa_fastmap_opt *opt);
+
+// pemerge
+// --------------------
+
+// TODO
+
 // fa2pac
 // --------------------
 
