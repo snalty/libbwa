@@ -237,7 +237,7 @@ static int pairing(bwa_seq_t *p[2], pe_data_t *d, const pe_opt_t *opt, int s_mm,
         }
     } else {
         fprintf(stderr, "[paring] not implemented yet!\n");
-        exit(1);
+        exit(LIBBWA_E_NOT_IMPLEMENTATION);
     }
     // set pairing
     //fprintf(stderr, "[%ld, %d, %d, %d]\n", d->arr.n, (int)(o_score>>32), (int)(subo_score>>32), o_n);
@@ -682,7 +682,7 @@ void libbwa_sai2sam_pe_core(const char *prefix,
     err_fread_noeof(magic[1], 1, 4, fp_sa[1]);
     if (strncmp(magic[0], SAI_MAGIC, 4) != 0 || strncmp(magic[1], SAI_MAGIC, 4) != 0) {
         fprintf(stderr, "[E::%s] Unmatched SAI magic. Please re-run `aln' with the same version of bwa.\n", __func__);
-        exit(1);
+        exit(LIBBWA_E_UNMATCHED_SAI);
     }
     err_fread_noeof(&opt, sizeof(gap_opt_t), 1, fp_sa[0]);
     ks[0] = bwa_open_reads(opt.mode, read1);
@@ -774,7 +774,7 @@ int libbwa_sampe(const char *db, const char *sai1, const char *sai2,
 
     if ((prefix = bwa_idx_infer_prefix(db)) == 0) {
         fprintf(stderr, "[%s] fail to locate the index\n", __func__);
-        return 1;
+        return LIBBWA_E_INDEX_ERROR;
     }
 
     fpo = xopen(out, "w");
@@ -782,5 +782,5 @@ int libbwa_sampe(const char *db, const char *sai1, const char *sai2,
     libbwa_sai2sam_pe_core(db, sai1, sai2, read1, read2, popt, opt->rg_line, fpo);
     err_fclose(fpo);
     free(prefix); free(popt);
-    return 0;
+    return LIBBWA_E_SUCCESS;
 }

@@ -191,7 +191,7 @@ void libbwa_sai2sam_se_core(const char *prefix, const char *fn_sa,
     err_fread_noeof(magic, 1, 4, fp_sa);
     if (strncmp(magic, SAI_MAGIC, 4) != 0) {
         fprintf(stderr, "[E::%s] Unmatched SAI magic. Please re-run `aln' with the same version of bwa.\n", __func__);
-        exit(1);
+        exit(LIBBWA_E_UNMATCHED_SAI);
     }
     err_fread_noeof(&opt, sizeof(gap_opt_t), 1, fp_sa);
     bwa_fprint_sam_hdr(out, bns, rg_line);
@@ -247,11 +247,11 @@ int libbwa_samse(const char *db, const char *sai, const char *read, const char *
     char *prefix;
     if ((prefix = bwa_idx_infer_prefix(db)) == 0) {
         fprintf(stderr, "[%s] fail to locate the index\n", __func__);
-        return 1;
+        return LIBBWA_E_INDEX_ERROR;
     }
     fpo = xopen(out, "w");
     libbwa_sai2sam_se_core(prefix, sai, read, opt->n_occ, opt->rg_line, fpo);
     err_fclose(fpo);
     free(prefix);
-    return 0;
+    return LIBBWA_E_SUCCESS;
 }

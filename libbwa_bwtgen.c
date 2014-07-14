@@ -26,5 +26,5 @@
 int libbwa_bwtgen(const char *pac, const char *out)
 {
     bwt_bwtgen(pac, out);
-    return 0;
+    return LIBBWA_E_SUCCESS;
 }

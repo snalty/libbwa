@@ -125,12 +125,12 @@ int libbwa_mem(const char *db, const char *read, const char *mate, const char *o
     convert_mem_opt(opt_, opt);
 
     bwa_fill_scmat(opt->a, opt->b, opt->mat);
-    if ((idx = bwa_idx_load(db, BWA_IDX_ALL)) == 0) return 1; // FIXME: memory leak
+    if ((idx = bwa_idx_load(db, BWA_IDX_ALL)) == 0) return LIBBWA_E_INDEX_ERROR; // FIXME: memory leak
 
     ko = kopen(read, &fd);
     if (ko == 0) {
         if (bwa_verbose >= 1) fprintf(stderr, "[E::%s] fail to open file `%s'.\n", __func__, read);
-        return 1;
+        return LIBBWA_E_FILE_ERROR;
     }
     fp = gzdopen(fd, "r");
     ks = kseq_init(fp);
@@ -142,7 +142,7 @@ int libbwa_mem(const char *db, const char *read, const char *mate, const char *o
             ko2 = kopen(mate, &fd2);
             if (ko2 == 0) {
                 if (bwa_verbose >= 1) fprintf(stderr, "[E::%s] fail to open file `%s'.\n", __func__, mate);
-                return 1;
+                return LIBBWA_E_FILE_ERROR;
             }
             fp2 = gzdopen(fd2, "r");
             ks2 = kseq_init(fp2);
@@ -185,5 +185,5 @@ int libbwa_mem(const char *db, const char *read, const char *mate, const char *o
         kseq_destroy(ks2);
         err_gzclose(fp2); kclose(ko2);
     }
-    return 0;
+    return LIBBWA_E_SUCCESS;
 }

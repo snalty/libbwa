@@ -33,5 +33,5 @@ int libbwa_fa2pac(const char *db, const char *prefix, int for_only)
     fp = xzopen(db, "r");
     bns_fasta2bntseq(fp, prefix, for_only);
 	err_gzclose(fp);
-	return 0;
+	return LIBBWA_E_SUCCESS;
 }

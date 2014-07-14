@@ -52,7 +52,8 @@ int libbwa_fastmap(const char *db, const char *read, const char *out, const libb
 
 	fp = xzopen(read, "r");
 	seq = kseq_init(fp);
-	if ((idx = bwa_idx_load(db, BWA_IDX_BWT|BWA_IDX_BNS)) == 0) return 1;
+	if ((idx = bwa_idx_load(db, BWA_IDX_BWT|BWA_IDX_BNS)) == 0)
+        return LIBBWA_E_INDEX_ERROR;
 
     fpo = xopen(out, "w");
 
@@ -93,5 +94,5 @@ int libbwa_fastmap(const char *db, const char *read, const char *out, const libb
 	kseq_destroy(seq);
     err_fclose(fpo);
 	err_gzclose(fp);
-	return 0;
+	return LIBBWA_E_SUCCESS;
 }

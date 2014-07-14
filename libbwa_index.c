@@ -40,7 +40,7 @@ int libbwa_bwtupdate(const char *bwt_)
 	bwt_bwtupdate_core(bwt);
 	bwt_dump_bwt(bwt_, bwt);
 	bwt_destroy(bwt);
-	return 0;
+	return LIBBWA_E_SUCCESS;
 }
 
 // Based on bwa_bwt2sa in bwtindex.c
@@ -51,7 +51,7 @@ int libbwa_bwt2sa(const char *bwt_, const char *out, int sa_intv)
 	bwt_cal_sa(bwt, sa_intv);
 	bwt_dump_sa(out, bwt);
 	bwt_destroy(bwt);
-	return 0;
+	return LIBBWA_E_SUCCESS;
 }
 
 // Modified based on bwa_index in bwtindex.c
@@ -61,7 +61,7 @@ int libbwa_index(const char *db, const char *prefix_, libbwa_index_algo algo, in
     clock_t t;
     int64_t l_pac;
 
-    if (is_64 < 0 || 1 < is_64) return 1;
+    if (is_64 < 0 || 1 < is_64) return LIBBWA_E_INVALID_ARGUMENT;
 
     prefix = (char*)calloc(strlen(prefix_) + 10, 1);
     strcpy(prefix, prefix_);
@@ -126,5 +126,5 @@ int libbwa_index(const char *db, const char *prefix_, libbwa_index_algo algo, in
         fprintf(stderr, "%.2f sec\n", (float)(clock() - t) / CLOCKS_PER_SEC);
     }
     free(str3); free(str2); free(str);
-    return 0;
+    return LIBBWA_E_SUCCESS;
 }

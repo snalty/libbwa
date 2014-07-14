@@ -151,9 +151,9 @@ int libbwa_aln(const char *db, const char *read, const char *out, const libbwa_a
     if ((prefix = bwa_idx_infer_prefix(db)) == 0) {
         fprintf(stderr, "[%s] fail to locate the index\n", __func__);
         free(opt);
-        return 1;
+        return LIBBWA_E_INDEX_ERROR;
     }
     libbwa_aln_core(prefix, read, out, opt);
     free(opt); free(prefix);
-    return 0;
+    return LIBBWA_E_SUCCESS;
 }

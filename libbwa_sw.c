@@ -709,12 +709,12 @@ int libbwa_sw(const char *db, const char *read, const char *mate, const char *ou
 
     fpo = xopen(out, "w");
 
-    if ((idx = bwa_idx_load(db, BWA_IDX_BWT|BWA_IDX_BNS)) == 0) return 1;
+    if ((idx = bwa_idx_load(db, BWA_IDX_BWT|BWA_IDX_BNS)) == 0) return LIBBWA_E_INDEX_ERROR;
     _sw_aln(opt, idx->bns, idx->bwt, read, mate != NULL ? mate : 0, fpo);
     bwa_idx_destroy(idx);
     free(opt);
 
     err_fclose(fpo);
 
-    return 0;
+    return LIBBWA_E_SUCCESS;
 }

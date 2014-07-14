@@ -35,6 +35,24 @@
 extern "C" {
 #endif
 
+// libbwa error codes.
+//
+// NOTE: Should never use 1 or -1 as an entity of a error code. These magic
+//       numbers are used in original BWA codes, and they have conflict risk.
+typedef enum {
+    LIBBWA_E_SUCCESS = 0,
+
+    // General errors
+    LIBBWA_E_INVALID_ARGUMENT = 10,
+    LIBBWA_E_INVALID_OPTION = 11,
+    LIBBWA_E_FILE_ERROR = 12,
+
+    // BWA errors
+    LIBBWA_E_INDEX_ERROR = 20,
+    LIBBWA_E_UNMATCHED_SAI = 21,
+    LIBBWA_E_NOT_IMPLEMENTATION = 22
+} libbwa_error_code;
+
 // index
 // --------------------
 
