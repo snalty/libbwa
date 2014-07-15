@@ -18,7 +18,6 @@ Requirements
 
 - CMake
 - zlib
-- CUnit (optional)
 
 Installation
 ------------
@@ -34,15 +33,26 @@ $ make install
 Usage
 -----
 
+Include `libbwa.h` in your source and compile it with `libbwa` library.
+libbwa wraps main BWA commands such as `index`, `mem`, etc.
+
 ```c
-# include <libbwa.h>
+#include <libbwa.h>
 
 void index_example(void)
 {
     char *db = "path/to/reference.fa";
     char *prefix = "path/to/reference.fa";
-
     libbwa_index(db, prefix, LIBBWA_INDEX_ALGO_AUTO, 0);
+}
+
+void mem_example(void)
+{
+    char *db = "path/to/reference.fa";
+    char *read = "path/to/read.fq";
+    char *out = "path/to/out.sam";
+    libbwa_mem_opt *opt = libbwa_mem_opt_init();
+    libbwa_mem(db, read, NULL, out, opt);
 }
 
 void aln_example(void)
@@ -51,7 +61,6 @@ void aln_example(void)
     char *read = "path/to/read.fq";
     char *out = "path/to/out.sai";
     libbwa_aln_opt *opt = libbwa_aln_opt_init();
-
     libbwa_aln(db, read, out, opt);
 }
 
@@ -62,7 +71,6 @@ void samse_example(void)
     char *read = "path/to/read.fq";
     char *out = "path/to/out.sam";
     libbwa_samse_opt *opt = libbwa_samse_opt_init();
-
     libbwa_samse(db, sai, read, out, opt);
 }
 
@@ -73,7 +81,6 @@ void sampe_example(void)
     char *read1 = "path/to/read1.fq", *read2 = "path/to/read2.fq";
     char *out = "path/to/out.sam";
     libbwa_sampe_opt *opt = libbwa_sampe_opt_init();
-
     libbwa_sampe(db, sai1, sai2, read1, read2, out, opt);
 }
 
@@ -83,20 +90,12 @@ void sw_example(void)
     char *read = "path/to/read.fq";
     char *out = "path/to/out.sam";
     libbwa_sw_opt *opt = libbwa_sw_opt_init();
-
     libbwa_sw(db, reads, NULL, out, opt);
 }
-
-void mem_example(void)
-{
-    char *db = "path/to/reference.fa";
-    char *read = "path/to/read.fq";
-    char *out = "path/to/out.sam";
-    libbwa_mem_opt *opt = libbwa_mem_opt_init();
-
-    libbwa_mem(db, read, NULL, out, opt);
-}
 ```
+
+The libbwa reference has not been provided yet.
+Please check [libbwa.h][libbwa.h] for more information.
 
 Tests
 -----
@@ -119,6 +118,7 @@ libbwa is released under [GPLv3][gplv3].
 libbwa is based heavily on [BWA][bwa] by [Heng Li][lh3].
 
 [bwa]: https://github.com/lh3/bwa
+[libbwa.h]: https://github.com/chrovis/libbwa/blob/master/libbwa.h
 [cunit]: http://cunit.sourceforge.net/
 [xcoo]: http://www.xcoo.jp/
 [gplv3]: http://www.gnu.org/licenses/gpl-3.0.html
