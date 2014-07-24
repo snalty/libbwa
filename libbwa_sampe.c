@@ -74,7 +74,7 @@ int bwa_approx_mapQ(const bwa_seq_t *p, int mm);
 void libbwa_print_sam1(const bntseq_t *bns, bwa_seq_t *p, const bwa_seq_t *mate,
                        int mode, int max_top2, FILE *out);
 
-// Based on bwa_init_pe_opt in bwtaln.c
+// Based on bwa_init_pe_opt in bwtape.c
 libbwa_sampe_opt *libbwa_sampe_opt_init(void)
 {
     libbwa_sampe_opt *o;
@@ -86,6 +86,7 @@ libbwa_sampe_opt *libbwa_sampe_opt_init(void)
     o->N_multi = 10;
     o->type = BWA_PET_STD;
     o->is_sw = 1;
+    o->is_preload = 0;
     o->ap_prior = 1e-5;
     o->rg_line = 0;
     return o;
