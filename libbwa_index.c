@@ -69,7 +69,7 @@ int libbwa_index(const char *db, const char *prefix_, libbwa_index_algo algo, in
     str  = (char*)calloc(strlen(prefix) + 10, 1);
     str2 = (char*)calloc(strlen(prefix) + 10, 1);
     str3 = (char*)calloc(strlen(prefix) + 10, 1);
-    printf("2");
+
     { // nucleotide indexing
         gzFile fp = xzopen(db, "r");
         t = clock();
