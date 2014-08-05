@@ -42,6 +42,7 @@ libbwa_fastmap_opt *libbwa_fastmap_opt_init(void)
 // Based on main_fastmap in fastmap.c
 int libbwa_fastmap(const char *db, const char *read, const char *out, const libbwa_fastmap_opt *opt)
 {
+    int i;
 	kseq_t *seq;
 	bwtint_t k;
 	gzFile fp;
@@ -64,11 +65,11 @@ int libbwa_fastmap(const char *db, const char *read, const char *out, const libb
 			err_fputc('\t', fpo);
 			err_fputs(seq->seq.s, fpo);
 		} else err_fputc('\n', fpo);
-		for (int i = 0; i < seq->seq.l; ++i)
+		for (i = 0; i < seq->seq.l; ++i)
 			seq->seq.s[i] = nst_nt4_table[(int)seq->seq.s[i]];
 		smem_set_query(itr, seq->seq.l, (uint8_t*)seq->seq.s);
 		while ((a = smem_next(itr)) != 0) {
-			for (int i = 0; i < a->n; ++i) {
+			for (i = 0; i < a->n; ++i) {
 				bwtintv_t *p = &a->a[i];
 				if ((uint32_t)p->info - (p->info>>32) < opt->min_len) continue;
 				err_fprintf(fpo, "EM\t%d\t%d\t%ld", (uint32_t)(p->info>>32), (uint32_t)p->info, (long)p->x[2]);
