@@ -39,6 +39,11 @@ libbwa_fastmap_opt *libbwa_fastmap_opt_init(void)
     return o;
 }
 
+void libbwa_fastmap_opt_destroy(libbwa_fastmap_opt *opt)
+{
+    free(opt);
+}
+
 // Based on main_fastmap in fastmap.c
 int libbwa_fastmap(const char *db, const char *read, const char *out, const libbwa_fastmap_opt *opt)
 {

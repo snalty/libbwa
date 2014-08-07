@@ -88,6 +88,11 @@ libbwa_sw_opt *libbwa_sw_opt_init(void)
     return o;
 }
 
+void libbwa_sw_opt_destroy(libbwa_sw_opt *opt)
+{
+    free(opt);
+}
+
 void _convert_sw_opt(const libbwa_sw_opt *src, bsw2opt_t *dst)
 {
     dst->a = src->a;

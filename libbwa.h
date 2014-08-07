@@ -84,6 +84,8 @@ typedef struct {
 // Based on gap_init_opt in bwtaln.h
 libbwa_aln_opt *libbwa_aln_opt_init(void);
 
+void libbwa_aln_opt_destroy(libbwa_aln_opt *opt);
+
 int libbwa_aln(const char *db, const char *read, const char *out, const libbwa_aln_opt *opt_);
 
 // samse
@@ -95,6 +97,8 @@ typedef struct {
 } libbwa_samse_opt;
 
 libbwa_samse_opt *libbwa_samse_opt_init(void);
+
+void libbwa_samse_opt_destroy(libbwa_samse_opt *opt);
 
 int libbwa_samse(const char *db, const char *sai, const char *read, const char *out, const libbwa_samse_opt *opt);
 
@@ -114,6 +118,8 @@ typedef struct {
 // Based on bwa_init_pe_opt in bwtaln.h
 libbwa_sampe_opt *libbwa_sampe_opt_init(void);
 
+void libbwa_sampe_opt_destroy(libbwa_sampe_opt *opt);
+
 int libbwa_sampe(const char *db, const char *sai1, const char *sai2,
                  const char *read1, const char *read2, const char *out,
                  const libbwa_sampe_opt *opt);
@@ -132,6 +138,8 @@ typedef struct {
 
 // Based on bsw2_init_opt in bwtsw2.h
 libbwa_sw_opt *libbwa_sw_opt_init(void);
+
+void libbwa_sw_opt_destroy(libbwa_sw_opt *opt);
 
 int libbwa_sw(const char *db, const char *read, const char *mate, const char *out, const libbwa_sw_opt *opt_);
 
@@ -174,6 +182,8 @@ typedef struct {
 // Same as mem_opt_init in bwamem.h
 libbwa_mem_opt *libbwa_mem_opt_init(void);
 
+void libbwa_mem_opt_destroy(libbwa_mem_opt *opt);
+
 int libbwa_mem(const char *db, const char *read, const char *mate, const char *out, const libbwa_mem_opt *opt_);
 
 // fastmap
@@ -186,6 +196,8 @@ typedef struct {
 } libbwa_fastmap_opt;
 
 libbwa_fastmap_opt *libbwa_fastmap_opt_init(void);
+
+void libbwa_fastmap_opt_destroy(libbwa_fastmap_opt *opt);
 
 int libbwa_fastmap(const char *db, const char *read, const char *out, const libbwa_fastmap_opt *opt);
 

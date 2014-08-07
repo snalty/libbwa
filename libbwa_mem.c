@@ -73,6 +73,11 @@ libbwa_mem_opt *libbwa_mem_opt_init(void)
     return o;
 }
 
+void libbwa_mem_opt_destroy(libbwa_mem_opt *opt)
+{
+    free(opt);
+}
+
 void convert_mem_opt(const libbwa_mem_opt *src, mem_opt_t *dst)
 {
     dst->a = src->a; dst->b = src->b;

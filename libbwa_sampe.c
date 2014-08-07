@@ -91,6 +91,11 @@ libbwa_sampe_opt *libbwa_sampe_opt_init(void)
     return o;
 }
 
+void libbwa_sampe_opt_destroy(libbwa_sampe_opt *opt)
+{
+    free(opt);
+}
+
 void convert_sampe_opt(const libbwa_sampe_opt *src, pe_opt_t *dst)
 {
     dst->max_isize = src->max_isize;

@@ -75,9 +75,11 @@ void libbwa_index_test(void)
     char *db = TEST_DB;
     char prefix[45];
     sprintf(prefix, "%s/test.fa", tempdir);
-    libbwa_index_algo algo = LIBBWA_INDEX_ALGO_AUTO;
-    int is_64 = 0;
-    CU_ASSERT(LIBBWA_E_SUCCESS == libbwa_index(db, prefix, algo, is_64));
+
+    CU_ASSERT(LIBBWA_E_SUCCESS == libbwa_index(db, prefix, LIBBWA_INDEX_ALGO_AUTO, 0));
+    CU_ASSERT(LIBBWA_E_SUCCESS == libbwa_index(db, prefix, LIBBWA_INDEX_ALGO_BWTSW, 0));
+    CU_ASSERT(LIBBWA_E_SUCCESS == libbwa_index(db, prefix, LIBBWA_INDEX_ALGO_IS, 0));
+    CU_ASSERT(LIBBWA_E_SUCCESS == libbwa_index(db, prefix, LIBBWA_INDEX_ALGO_AUTO, 1));
 }
 
 void libbwa_aln_test(void)
@@ -88,6 +90,7 @@ void libbwa_aln_test(void)
     sprintf(out, "%s/libbwa_aln_test.sai", tempdir);
     libbwa_aln_opt *opt = libbwa_aln_opt_init();
     CU_ASSERT(LIBBWA_E_SUCCESS == libbwa_aln(db, read, out, opt));
+    libbwa_aln_opt_destroy(opt);
 }
 
 void libbwa_samse_test(void)
@@ -99,6 +102,7 @@ void libbwa_samse_test(void)
     sprintf(out, "%s/libbwa_samse_test.sam", tempdir);
     libbwa_samse_opt *opt = libbwa_samse_opt_init();
     CU_ASSERT(LIBBWA_E_SUCCESS == libbwa_samse(db, sai, read, out, opt));
+    libbwa_samse_opt_destroy(opt);
 }
 
 void libbwa_sampe_test(void)
@@ -110,6 +114,7 @@ void libbwa_sampe_test(void)
     sprintf(out, "%s/libbwa_sampe_test.sam", tempdir);
     libbwa_sampe_opt *opt = libbwa_sampe_opt_init();
     CU_ASSERT(LIBBWA_E_SUCCESS == libbwa_sampe(db, sai1, sai2, read1, read2, out, opt));
+    libbwa_sampe_opt_destroy(opt);
 }
 
 void libbwa_sw_test(void)
@@ -120,6 +125,7 @@ void libbwa_sw_test(void)
     sprintf(out, "%s/libbwa_sw_test.sam", tempdir);
     libbwa_sw_opt *opt = libbwa_sw_opt_init();
     CU_ASSERT(LIBBWA_E_SUCCESS == libbwa_sw(db, read, NULL, out, opt));
+    libbwa_sw_opt_destroy(opt);
 }
 
 void libbwa_mem_test(void)
@@ -130,6 +136,7 @@ void libbwa_mem_test(void)
     sprintf(out, "%s/libbwa_mem_test.sam", tempdir);
     libbwa_mem_opt *opt = libbwa_mem_opt_init();
     CU_ASSERT(LIBBWA_E_SUCCESS == libbwa_mem(db, read, NULL, out, opt));
+    libbwa_mem_opt_destroy(opt);
 }
 
 void libbwa_fastmap_test(void)
@@ -140,6 +147,7 @@ void libbwa_fastmap_test(void)
     sprintf(out, "%s/libbwa_fastmap_test", tempdir);
     libbwa_fastmap_opt *opt = libbwa_fastmap_opt_init();
     CU_ASSERT(LIBBWA_E_SUCCESS == libbwa_fastmap(db, read, out, opt));
+    libbwa_fastmap_opt_destroy(opt);
 }
 
 void libbwa_fa2pac_test(void)

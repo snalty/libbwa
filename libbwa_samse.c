@@ -40,6 +40,11 @@ libbwa_samse_opt *libbwa_samse_opt_init(void)
     return o;
 }
 
+void libbwa_samse_opt_destroy(libbwa_samse_opt *opt)
+{
+    free(opt);
+}
+
 // Copied from bwase.c
 static int64_t pos_5(const bwa_seq_t *p)
 {

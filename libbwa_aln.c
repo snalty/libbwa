@@ -44,6 +44,11 @@ libbwa_aln_opt *libbwa_aln_opt_init(void)
     return o;
 }
 
+void libbwa_aln_opt_destroy(libbwa_aln_opt *opt)
+{
+    free(opt);
+}
+
 void convert_aln_opt(const libbwa_aln_opt *src, gap_opt_t *dst)
 {
     dst->s_mm = src->s_mm; dst->s_gapo = src->s_gapo; dst->s_gape = src->s_gape;
