@@ -29,7 +29,7 @@
 
 #define LIBBWA_PG_ID "bwa"
 #define LIBBWA_PG_PN "libbwa"
-#define LIBBWA_PACKAGE_VERSION "0.7.9a-r786"
+#define LIBBWA_PACKAGE_VERSION "0.7.10-r789"
 
 #ifdef __cplusplus
 extern "C" {

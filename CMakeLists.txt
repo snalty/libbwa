@@ -55,8 +55,8 @@ set(BWA_SOURCES
 
 include_directories(${PROJECT_SOURCE_DIR})
 
-set(SERIAL "0.7.9a")
-set(SOSERIAL "0.7.9a")
+set(SERIAL "0.7.10-r789")
+set(SOSERIAL "0.7.10")
 add_library(bwa SHARED ${BWA_SOURCES})
 set_target_properties(bwa PROPERTIES VERSION ${SERIAL} SOVERSION ${SOSERIAL} MACOSX_RPATH 1)
 target_link_libraries(bwa ${CMAKE_THREAD_LIBS_INIT} m z)
