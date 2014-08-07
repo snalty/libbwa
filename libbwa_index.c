@@ -25,7 +25,6 @@
 #include <stdlib.h>
 #include <string.h>
 #include <math.h>
-#include <time.h>
 #include <zlib.h>
 
 #include "bwtindex.h"
@@ -58,7 +57,6 @@ int libbwa_bwt2sa(const char *bwt_, const char *out, int sa_intv)
 int libbwa_index(const char *db, const char *prefix_, libbwa_index_algo algo, int is_64)
 {
     char *prefix, *str, *str2, *str3;
-    clock_t t;
     int64_t l_pac;
 
     if (is_64 < 0 || 1 < is_64) return LIBBWA_E_INVALID_ARGUMENT;
@@ -72,10 +70,7 @@ int libbwa_index(const char *db, const char *prefix_, libbwa_index_algo algo, in
 
     { // nucleotide indexing
         gzFile fp = xzopen(db, "r");
-        t = clock();
-        fprintf(stderr, "[bwa_index] Pack FASTA... ");
         l_pac = bns_fasta2bntseq(fp, prefix, 0);
-        fprintf(stderr, "%.2f sec\n", (float)(clock() - t) / CLOCKS_PER_SEC);
         err_gzclose(fp);
     }
     if (algo == LIBBWA_INDEX_ALGO_AUTO)
@@ -83,8 +78,6 @@ int libbwa_index(const char *db, const char *prefix_, libbwa_index_algo algo, in
     {
         strcpy(str, prefix); strcat(str, ".pac");
         strcpy(str2, prefix); strcat(str2, ".bwt");
-        t = clock();
-        fprintf(stderr, "[bwa_index] Construct BWT for the packed sequence...\n");
         if (algo == LIBBWA_INDEX_ALGO_BWTSW) bwt_bwtgen(str, str2);
         else if (algo == LIBBWA_INDEX_ALGO_DIV || algo == LIBBWA_INDEX_ALGO_IS) {
             bwt_t *bwt;
@@ -92,38 +85,28 @@ int libbwa_index(const char *db, const char *prefix_, libbwa_index_algo algo, in
             bwt_dump_bwt(str2, bwt);
             bwt_destroy(bwt);
         }
-        fprintf(stderr, "[bwa_index] %.2f seconds elapse.\n", (float)(clock() - t) / CLOCKS_PER_SEC);
     }
     {
         bwt_t *bwt;
         strcpy(str, prefix); strcat(str, ".bwt");
-        t = clock();
-        fprintf(stderr, "[bwa_index] Update BWT... ");
         bwt = bwt_restore_bwt(str);
         bwt_bwtupdate_core(bwt);
         bwt_dump_bwt(str, bwt);
         bwt_destroy(bwt);
-        fprintf(stderr, "%.2f sec\n", (float)(clock() - t) / CLOCKS_PER_SEC);
     }
     {
         gzFile fp = xzopen(db, "r");
-        t = clock();
-        fprintf(stderr, "[bwa_index] Pack forward-only FASTA... ");
         l_pac = bns_fasta2bntseq(fp, prefix, 1);
-        fprintf(stderr, "%.2f sec\n", (float)(clock() - t) / CLOCKS_PER_SEC);
         err_gzclose(fp);
     }
     {
         bwt_t *bwt;
         strcpy(str, prefix); strcat(str, ".bwt");
         strcpy(str3, prefix); strcat(str3, ".sa");
-        t = clock();
-        fprintf(stderr, "[bwa_index] Construct SA from BWT and Occ... ");
         bwt = bwt_restore_bwt(str);
         bwt_cal_sa(bwt, 32);
         bwt_dump_sa(str3, bwt);
         bwt_destroy(bwt);
-        fprintf(stderr, "%.2f sec\n", (float)(clock() - t) / CLOCKS_PER_SEC);
     }
     free(str3); free(str2); free(str);
     return LIBBWA_E_SUCCESS;

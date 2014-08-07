@@ -28,7 +28,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <time.h>
 
 #include "bwa.h"
 #include "bwtaln.h"
@@ -126,7 +125,6 @@ static int infer_isize(int n_seqs, bwa_seq_t *seqs[2], isize_info_t *ii, double 
         if (p[1]->len > max_len) max_len = p[1]->len;
     }
     if (tot < 20) {
-        fprintf(stderr, "[infer_isize] fail to infer insert size: too few good pairs\n");
         free(isizes);
         return -1;
     }
@@ -138,7 +136,6 @@ static int infer_isize(int n_seqs, bwa_seq_t *seqs[2], isize_info_t *ii, double 
     ii->low = tmp > max_len? tmp : max_len; // ii->low is unsigned
     ii->high = (int)(p75 + OUTLIER_BOUND * (p75 - p25) + .499);
     if (ii->low > ii->high) {
-        fprintf(stderr, "[infer_isize] fail to infer insert size: upper bound is smaller than read length\n");
         free(isizes);
         return -1;
     }
@@ -165,19 +162,13 @@ static int infer_isize(int n_seqs, bwa_seq_t *seqs[2], isize_info_t *ii, double 
     ii->ap_prior = .01 * (n_ap + .01) / tot;
     if (ii->ap_prior < ap_prior) ii->ap_prior = ap_prior;
     free(isizes);
-    fprintf(stderr, "[infer_isize] (25, 50, 75) percentile: (%d, %d, %d)\n", p25, p50, p75);
     if (isnan(ii->std) || p75 > 100000) {
         ii->low = ii->high = ii->high_bayesian = 0; ii->avg = ii->std = -1.0;
-        fprintf(stderr, "[infer_isize] fail to infer insert size: weird pairing\n");
         return -1;
     }
     for (y = 1.0; y < 10.0; y += 0.01)
         if (.5 * erfc(y / M_SQRT2) < ap_prior / L * (y * ii->std + ii->avg)) break;
     ii->high_bayesian = (bwtint_t)(y * ii->std + ii->avg + .499);
-    fprintf(stderr, "[infer_isize] low and high boundaries: %ld and %ld for estimating avg and std\n", (long)ii->low, (long)ii->high);
-    fprintf(stderr, "[infer_isize] inferred external isize from %d pairs: %.3lf +/- %.3lf\n", n, ii->avg, ii->std);
-    fprintf(stderr, "[infer_isize] skewness: %.3lf; kurtosis: %.3lf; ap_prior: %.2e\n", skewness, kurtosis, ii->ap_prior);
-    fprintf(stderr, "[infer_isize] inferred maximum insert size: %ld (%.2lf sigma)\n", (long)ii->high_bayesian, y);
     return 0;
 }
 
@@ -237,7 +228,6 @@ static int pairing(bwa_seq_t *p[2], pe_data_t *d, const pe_opt_t *opt, int s_mm,
             }
         }
     } else {
-        fprintf(stderr, "[paring] not implemented yet!\n");
         exit(LIBBWA_E_NOT_IMPLEMENTATION);
     }
     // set pairing
@@ -641,10 +631,6 @@ ubyte_t *libbwa_paired_sw(const bntseq_t *bns, const ubyte_t *_pacseq, int n_seq
             free(cigar[0]); free(cigar[1]);
         }
     }
-    fprintf(stderr, "[bwa_paired_sw] %lld out of %lld Q%d singletons are mated.\n",
-            (long long)n_mapped[1], (long long)n_tot[1], SW_MIN_MAPQ);
-    fprintf(stderr, "[bwa_paired_sw] %lld out of %lld Q%d discordant pairs are fixed.\n",
-            (long long)n_mapped[0], (long long)n_tot[0], SW_MIN_MAPQ);
     return pacseq;
 }
 
@@ -658,7 +644,6 @@ void libbwa_sai2sam_pe_core(const char *prefix,
     int i, j, n_seqs, tot_seqs = 0;
     bwa_seq_t *seqs[2];
     bwa_seqio_t *ks[2];
-    clock_t t;
     bntseq_t *bns;
     FILE *fp_sa[2];
     gap_opt_t opt, opt0;
@@ -709,24 +694,15 @@ void libbwa_sai2sam_pe_core(const char *prefix,
 
         seqs[1] = bwa_read_seq(ks[1], 0x40000, &n_seqs, opt.mode, opt.trim_qual);
         tot_seqs += n_seqs;
-        t = clock();
 
-        fprintf(stderr, "[bwa_sai2sam_pe_core] convert to sequence coordinate... \n");
         cnt_chg = libbwa_cal_pac_pos_pe(bns, prefix, bwt, n_seqs, seqs, fp_sa, &ii, popt, &opt, &last_ii);
-        fprintf(stderr, "[bwa_sai2sam_pe_core] time elapses: %.2f sec\n", (float)(clock() - t) / CLOCKS_PER_SEC); t = clock();
-        fprintf(stderr, "[bwa_sai2sam_pe_core] changing coordinates of %d alignments.\n", cnt_chg);
 
-        fprintf(stderr, "[bwa_sai2sam_pe_core] align unmapped mate...\n");
         pacseq = libbwa_paired_sw(bns, pac, n_seqs, seqs, popt, &ii);
-        fprintf(stderr, "[bwa_sai2sam_pe_core] time elapses: %.2f sec\n", (float)(clock() - t) / CLOCKS_PER_SEC); t = clock();
 
-        fprintf(stderr, "[bwa_sai2sam_pe_core] refine gapped alignments... ");
         for (j = 0; j < 2; ++j)
             bwa_refine_gapped(bns, n_seqs, seqs[j], pacseq);
-        fprintf(stderr, "%.2f sec\n", (float)(clock() - t) / CLOCKS_PER_SEC); t = clock();
         if (pac == 0) free(pacseq);
 
-        fprintf(stderr, "[bwa_sai2sam_pe_core] print alignments... ");
         for (i = 0; i < n_seqs; ++i) {
             bwa_seq_t *p[2];
             p[0] = seqs[0] + i; p[1] = seqs[1] + i;
@@ -738,11 +714,9 @@ void libbwa_sai2sam_pe_core(const char *prefix,
             libbwa_print_sam1(bns, p[1], p[0], opt.mode, opt.max_top2, out);
             if (strcmp(p[0]->name, p[1]->name) != 0) err_fatal(__func__, "paired reads have different names: \"%s\", \"%s\"\n", p[0]->name, p[1]->name);
         }
-        fprintf(stderr, "%.2f sec\n", (float)(clock() - t) / CLOCKS_PER_SEC); t = clock();
 
         for (j = 0; j < 2; ++j)
             bwa_free_read_seq(n_seqs, seqs[j]);
-        fprintf(stderr, "[bwa_sai2sam_pe_core] %d sequences have been processed.\n", tot_seqs);
         last_ii = ii;
     }
 

@@ -129,7 +129,6 @@ int libbwa_mem(const char *db, const char *read, const char *mate, const char *o
 
     ko = kopen(read, &fd);
     if (ko == 0) {
-        if (bwa_verbose >= 1) fprintf(stderr, "[E::%s] fail to open file `%s'.\n", __func__, read);
         return LIBBWA_E_FILE_ERROR;
     }
     fp = gzdopen(fd, "r");
@@ -141,7 +140,6 @@ int libbwa_mem(const char *db, const char *read, const char *mate, const char *o
         } else {
             ko2 = kopen(mate, &fd2);
             if (ko2 == 0) {
-                if (bwa_verbose >= 1) fprintf(stderr, "[E::%s] fail to open file `%s'.\n", __func__, mate);
                 return LIBBWA_E_FILE_ERROR;
             }
             fp2 = gzdopen(fd2, "r");
@@ -154,7 +152,6 @@ int libbwa_mem(const char *db, const char *read, const char *mate, const char *o
 
     bwa_fprint_sam_hdr(fpo, idx->bns, rg_line);
     while ((seqs = bseq_read(opt->chunk_size * opt->n_threads, &n, ks, ks2)) != 0) {
-        int64_t size = 0;
         if ((opt->flag & MEM_F_PE) && (n&1) == 1) {
             if (bwa_verbose >= 2)
                 fprintf(stderr, "[W::%s] odd number of reads in the PE mode; last read dropped\n", __func__);
@@ -164,9 +161,6 @@ int libbwa_mem(const char *db, const char *read, const char *mate, const char *o
             for (i = 0; i < n; ++i) {
                 free(seqs[i].comment); seqs[i].comment = 0;
             }
-        for (i = 0; i < n; ++i) size += seqs[i].l_seq;
-        if (bwa_verbose >= 3)
-            fprintf(stderr, "[M::%s] read %d sequences (%ld bp)...\n", __func__, n, (long)size);
         mem_process_seqs(opt, idx->bwt, idx->bns, idx->pac, n_processed, n, seqs, pes0);
         n_processed += n;
         for (i = 0; i < n; ++i) {

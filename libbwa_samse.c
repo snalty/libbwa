@@ -24,7 +24,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <time.h>
 
 #include "bwa.h"
 #include "bwase.h"
@@ -175,7 +174,6 @@ void libbwa_sai2sam_se_core(const char *prefix, const char *fn_sa,
     bwt_aln1_t *aln = 0;
     bwa_seq_t *seqs;
     bwa_seqio_t *ks;
-    clock_t t;
     bntseq_t *bns;
     FILE *fp_sa;
     gap_opt_t opt;
@@ -200,7 +198,6 @@ void libbwa_sai2sam_se_core(const char *prefix, const char *fn_sa,
     // core loop
     while ((seqs = bwa_read_seq(ks, 0x40000, &n_seqs, opt.mode, opt.trim_qual)) != 0) {
         tot_seqs += n_seqs;
-        t = clock();
 
         // read alignment
         for (i = 0; i < n_seqs; ++i) {
@@ -215,21 +212,14 @@ void libbwa_sai2sam_se_core(const char *prefix, const char *fn_sa,
             bwa_aln2seq_core(n_aln, aln, p, 1, n_occ);
         }
 
-        fprintf(stderr, "[bwa_aln_core] convert to sequence coordinate... ");
         bwa_cal_pac_pos(bns, prefix, n_seqs, seqs, opt.max_diff, opt.fnr); // forward bwt will be destroyed here
-        fprintf(stderr, "%.2f sec\n", (float)(clock() - t) / CLOCKS_PER_SEC); t = clock();
 
-        fprintf(stderr, "[bwa_aln_core] refine gapped alignments... ");
         bwa_refine_gapped(bns, n_seqs, seqs, 0);
-        fprintf(stderr, "%.2f sec\n", (float)(clock() - t) / CLOCKS_PER_SEC); t = clock();
 
-        fprintf(stderr, "[bwa_aln_core] print alignments... ");
         for (i = 0; i < n_seqs; ++i)
             libbwa_print_sam1(bns, seqs + i, 0, opt.mode, opt.max_top2, out);
-        fprintf(stderr, "%.2f sec\n", (float)(clock() - t) / CLOCKS_PER_SEC);
 
         bwa_free_read_seq(n_seqs, seqs);
-        fprintf(stderr, "[bwa_aln_core] %d sequences have been processed.\n", tot_seqs);
     }
 
     // destroy

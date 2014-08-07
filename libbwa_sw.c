@@ -663,7 +663,6 @@ void _sw_aln(const bsw2opt_t *opt, const bntseq_t *bns, bwt_t * const target, co
         is_pe = 1;
     } else fp2 = 0, ks2 = 0, is_pe = 0;
     while ((bseq = bseq_read(opt->chunk_size * opt->n_threads, &n, ks, ks2)) != 0) {
-        int size = 0;
         if (n > _seq->max) {
             _seq->max = n;
             kroundup32(_seq->max);
@@ -675,9 +674,7 @@ void _sw_aln(const bsw2opt_t *opt, const bntseq_t *bns, bwt_t * const target, co
             bsw2seq1_t *p = &_seq->seq[i];
             p->tid = -1; p->l = b->l_seq;
             p->name = b->name; p->seq = b->seq; p->qual = b->qual; p->comment = b->comment; p->sam = 0;
-            size += p->l;
         }
-        fprintf(stderr, "[bsw2_aln] read %d sequences/pairs (%d bp) ...\n", n, size);
         free(bseq);
         _process_seqs(_seq, opt, bns, pac, target, is_pe, out);
     }

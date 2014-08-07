@@ -20,7 +20,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <time.h>
 
 #include "bwa.h"
 #include "bwtaln.h"
@@ -63,7 +62,6 @@ void libbwa_aln_core(const char *prefix, const char *fn_fa, const char *out ,con
     int i, n_seqs, tot_seqs = 0;
     bwa_seq_t *seqs;
     bwa_seqio_t *ks;
-    clock_t t;
     bwt_t *bwt;
     FILE *fpo;
 
@@ -82,9 +80,6 @@ void libbwa_aln_core(const char *prefix, const char *fn_fa, const char *out ,con
     err_fwrite(opt, sizeof(gap_opt_t), 1, fpo);
     while ((seqs = bwa_read_seq(ks, 0x40000, &n_seqs, opt->mode, opt->trim_qual)) != 0) {
         tot_seqs += n_seqs;
-        t = clock();
-
-        fprintf(stderr, "[bwa_aln_core] calculate SA coordinate... ");
 
 #ifdef HAVE_PTHREAD
         if (opt->n_threads <= 1) { // no multi-threading at all
@@ -110,19 +105,13 @@ void libbwa_aln_core(const char *prefix, const char *fn_fa, const char *out ,con
         bwa_cal_sa_reg_gap(0, bwt, n_seqs, seqs, opt);
 #endif
 
-        fprintf(stderr, "%.2f sec\n", (float)(clock() - t) / CLOCKS_PER_SEC);
-
-        t = clock();
-        fprintf(stderr, "[bwa_aln_core] write to the disk... ");
         for (i = 0; i < n_seqs; ++i) {
             bwa_seq_t *p = seqs + i;
             err_fwrite(&p->n_aln, 4, 1, fpo);
             if (p->n_aln) err_fwrite(p->aln, sizeof(bwt_aln1_t), p->n_aln, fpo);
         }
-        fprintf(stderr, "%.2f sec\n", (float)(clock() - t) / CLOCKS_PER_SEC);
 
         bwa_free_read_seq(n_seqs, seqs);
-        fprintf(stderr, "[bwa_aln_core] %d sequences have been processed.\n", tot_seqs);
     }
 
     // destroy
@@ -140,16 +129,7 @@ int libbwa_aln(const char *db, const char *read, const char *out, const libbwa_a
     opt = gap_init_opt();
     convert_aln_opt(opt_, opt);
 
-    if (opt->fnr > 0.0) {
-        int i, k;
-        for (i = 17, k = 0; i <= 250; ++i) {
-            int l = bwa_cal_maxdiff(i, BWA_AVG_ERR, opt->fnr);
-            if (l != k) fprintf(stderr, "[bwa_aln] %dbp reads: max_diff = %d\n", i, l);
-            k = l;
-        }
-    }
     if ((prefix = bwa_idx_infer_prefix(db)) == 0) {
-        fprintf(stderr, "[%s] fail to locate the index\n", __func__);
         free(opt);
         return LIBBWA_E_INDEX_ERROR;
     }

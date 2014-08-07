@@ -12,7 +12,8 @@
 #  include "malloc_wrap.h"
 #endif
 
-int bwa_verbose = 3;
+//int bwa_verbose = 3;
+int bwa_verbose = 0; // Suppress printing (2014-08-07)
 char bwa_rg_id[256];
 
 /************************
@@ -318,4 +319,3 @@ err_set_rg:
 	free(rg_line);
 	return 0;
 }
-
