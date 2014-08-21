@@ -56,6 +56,10 @@ int libbwa_fastmap(const char *db, const char *read, const char *out, const libb
 	bwaidx_t *idx;
     FILE *fpo;
 
+    // Validate arguments
+    if (!db || !read || !out || !opt)
+        return LIBBWA_E_INVALID_ARGUMENT;
+
 	fp = xzopen(read, "r");
 	seq = kseq_init(fp);
 	if ((idx = bwa_idx_load(db, BWA_IDX_BWT|BWA_IDX_BNS)) == 0)

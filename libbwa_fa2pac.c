@@ -30,6 +30,11 @@
 int libbwa_fa2pac(const char *db, const char *prefix, int for_only)
 {
     gzFile fp;
+
+    // Validate arguments
+    if (!db || !prefix || (for_only < 0 || for_only > 1))
+        return LIBBWA_E_INVALID_ARGUMENT;
+
     fp = xzopen(db, "r");
     bns_fasta2bntseq(fp, prefix, for_only);
 	err_gzclose(fp);

@@ -46,6 +46,10 @@ int libbwa_bwtupdate(const char *bwt_)
 int libbwa_bwt2sa(const char *bwt_, const char *out, int sa_intv)
 {
 	bwt_t *bwt;
+
+    // Validate arguments
+    if (!bwt_ || !out) return LIBBWA_E_INVALID_ARGUMENT;
+
 	bwt = bwt_restore_bwt(bwt_);
 	bwt_cal_sa(bwt, sa_intv);
 	bwt_dump_sa(out, bwt);
@@ -59,7 +63,9 @@ int libbwa_index(const char *db, const char *prefix_, libbwa_index_algo algo, in
     char *prefix, *str, *str2, *str3;
     int64_t l_pac;
 
-    if (is_64 < 0 || 1 < is_64) return LIBBWA_E_INVALID_ARGUMENT;
+    // Validate arguments
+    if (!db || !prefix_ || 3 < algo || (is_64 < 0 || 1 < is_64))
+        return LIBBWA_E_INVALID_ARGUMENT;
 
     prefix = (char*)calloc(strlen(prefix_) + 10, 1);
     strcpy(prefix, prefix_);

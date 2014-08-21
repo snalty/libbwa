@@ -131,6 +131,9 @@ int libbwa_aln(const char *db, const char *read, const char *out, const libbwa_a
     gap_opt_t *opt;
     char *prefix;
 
+    // Validate arguments
+    if (!db || !read || !out || !opt_) return LIBBWA_E_INVALID_ARGUMENT;
+
     opt = gap_init_opt();
     convert_aln_opt(opt_, opt);
 

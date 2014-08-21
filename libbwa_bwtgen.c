@@ -25,6 +25,9 @@
 
 int libbwa_bwtgen(const char *pac, const char *out)
 {
+    // Validate arguments
+    if (!pac || !out) return LIBBWA_E_INVALID_ARGUMENT;
+
     bwt_bwtgen(pac, out);
     return LIBBWA_E_SUCCESS;
 }

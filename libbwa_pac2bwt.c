@@ -28,6 +28,11 @@
 int libbwa_pac2bwt(const char *pac, const char *out, int use_is)
 {
     bwt_t *bwt;
+
+    // Validate arguments
+    if (!pac || !out || (use_is < 0 || use_is > 1))
+        return LIBBWA_E_INVALID_ARGUMENT;
+
     bwt = bwt_pac2bwt(pac, use_is);
     bwt_dump_bwt(out, bwt);
     bwt_destroy(bwt);

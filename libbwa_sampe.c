@@ -749,6 +749,10 @@ int libbwa_sampe(const char *db, const char *sai1, const char *sai2,
     pe_opt_t *popt;
     char *prefix;
 
+    // Validate arguments
+    if (!db || !sai1 || !sai2 || !read1 || !read2 || !out || !opt)
+        return LIBBWA_E_INVALID_ARGUMENT;
+
     popt = bwa_init_pe_opt();
     convert_sampe_opt(opt, popt);
 

@@ -695,11 +695,16 @@ void _sw_aln(const bsw2opt_t *opt, const bntseq_t *bns, bwt_t * const target, co
 }
 
 // Based on bwa_bwtsw2 in bwtsw2_main.c
-int libbwa_sw(const char *db, const char *read, const char *mate, const char *out, const libbwa_sw_opt *opt_)
+int libbwa_sw(const char *db, const char *read, const char *mate,
+              const char *out, const libbwa_sw_opt *opt_)
 {
     bsw2opt_t *opt;
     bwaidx_t *idx;
     FILE *fpo;
+
+    // Validate arguments
+    if (!db || !read || !out || !opt_)
+        return LIBBWA_E_INVALID_ARGUMENT;
 
     opt = bsw2_init_opt();
     _convert_sw_opt(opt_, opt);

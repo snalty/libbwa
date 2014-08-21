@@ -239,6 +239,9 @@ int libbwa_samse(const char *db, const char *sai, const char *read, const char *
 {
     FILE *fpo;
 
+    // Validate arguments
+    if (!db || !sai || !read || !out || !opt) return LIBBWA_E_INVALID_ARGUMENT;
+
     char *prefix;
     if ((prefix = bwa_idx_infer_prefix(db)) == 0) {
         fprintf(stderr, "[%s] fail to locate the index\n", __func__);

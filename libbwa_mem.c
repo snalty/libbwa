@@ -126,6 +126,10 @@ int libbwa_mem(const char *db, const char *read, const char *mate, const char *o
     mem_pestat_t *pes0 = 0;
     FILE *fpo;
 
+    // Validate arguments
+    if (!db || !read || !out || !opt_)
+        return LIBBWA_E_INVALID_ARGUMENT;
+
     opt = mem_opt_init();
     convert_mem_opt(opt_, opt);
 
