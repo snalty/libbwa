@@ -44,11 +44,12 @@ libbwa_mem_opt *libbwa_mem_opt_init(void)
     libbwa_mem_opt *o;
     o = calloc(1, sizeof(libbwa_mem_opt));
     o->flag = 0;
-    o->a = 1; o->b = 4;
+    o->match_score = 1;
+    o->mismatch_penalty = 4;
     o->o_del = o->o_ins = 6;
     o->e_del = o->e_ins = 1;
-    o->w = 100;
-    o->T = 30;
+    o->band_width = 100;
+    o->t = 30;
     o->zdrop = 100;
     o->pen_unpaired = 17;
     o->pen_clip5 = o->pen_clip3 = 5;
@@ -59,7 +60,7 @@ libbwa_mem_opt *libbwa_mem_opt_init(void)
     o->max_ins = 10000;
     o->mask_level = 0.50;
     o->drop_ratio = 0.50;
-    o->XA_drop_ratio = 0.80;
+    o->xa_drop_ratio = 0.80;
     o->split_factor = 1.5;
     o->chunk_size = 10000000;
     o->n_threads = 1;
@@ -68,8 +69,7 @@ libbwa_mem_opt *libbwa_mem_opt_init(void)
     o->mask_level_redun = 0.95;
     o->min_chain_weight = 0;
     o->max_chain_extend = 1<<30;
-    o->mapQ_coef_len = 50; o->mapQ_coef_fac = log(o->mapQ_coef_len);
-    bwa_fill_scmat(o->a, o->b, o->mat);
+    o->mapq_coef_len = 50;
     return o;
 }
 
@@ -80,15 +80,15 @@ void libbwa_mem_opt_destroy(libbwa_mem_opt *opt)
 
 void convert_mem_opt(const libbwa_mem_opt *src, mem_opt_t *dst)
 {
-    dst->a = src->a; dst->b = src->b;
+    dst->a = src->match_score;
+    dst->b = src->mismatch_penalty;
     dst->o_del = src->o_del; dst->e_del = src->e_del;
     dst->o_ins = src->o_ins; dst->e_ins = src->e_ins;
     dst->pen_unpaired = src->pen_unpaired;
     dst->pen_clip5 = src->pen_clip5; dst->pen_clip3 = src->pen_clip3;
-    dst->w = src->w;
+    dst->w = src->band_width;
     dst->zdrop = src->zdrop;
-
-    dst->T = src->T;
+    dst->T = src->t;
     dst->flag = src->flag;
     dst->min_seed_len = src->min_seed_len;
     dst->min_chain_weight = src->min_chain_weight;
@@ -101,14 +101,13 @@ void convert_mem_opt(const libbwa_mem_opt *src, mem_opt_t *dst)
     dst->chunk_size = src->chunk_size;
     dst->mask_level = src->mask_level;
     dst->drop_ratio = src->drop_ratio;
-    dst->XA_drop_ratio = src->XA_drop_ratio;
+    dst->XA_drop_ratio = src->xa_drop_ratio;
     dst->mask_level_redun = src->mask_level_redun;
-    dst->mapQ_coef_len = src->mapQ_coef_len;
-    dst->mapQ_coef_fac = src->mapQ_coef_fac;
+    dst->mapQ_coef_len = src->mapq_coef_len;
+    dst->mapQ_coef_fac = log(src->mapq_coef_len);
     dst->max_ins = src->max_ins;
     dst->max_matesw = src->max_matesw;
     dst->max_hits = src->max_hits;
-    memcpy(dst->mat, src->mat, sizeof(int8_t) * 25);
 }
 
 // Modified based on main_mem in fastmap.c

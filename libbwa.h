@@ -23,7 +23,6 @@
 #define LIBBWA_H
 
 #include <stdio.h>
-#include <stdint.h>
 
 #include "bntseq.h"
 
@@ -290,37 +289,35 @@ int libbwa_sw(const char *db, const char *read, const char *mate,
  * @see libbwa_mem_opt_destroy()
  * @see libbwa_mem()
  */
-// Same as mem_opt_t in bwamem.h
+// Based on mem_opt_t in bwamem.h
 typedef struct {
-    int a, b;               // match score and mismatch penalty
-    int o_del, e_del;
-    int o_ins, e_ins;
-    int pen_unpaired;       // phred-scaled penalty for unpaired reads
-    int pen_clip5,pen_clip3;// clipping penalty. This score is not deducted from the DP score.
-    int w;                  // band width
-    int zdrop;              // Z-dropoff
-
-    int T;                  // output score threshold; only affecting output
-    int flag;               // see MEM_F_* macros
-    int min_seed_len;       // minimum seed length
-    int min_chain_weight;
-    int max_chain_extend;
-    float split_factor;     // split into a seed if MEM is longer than min_seed_len*split_factor
-    int split_width;        // split into a seed if its occurence is smaller than this value
-    int max_occ;            // skip a seed if its occurence is larger than this value
-    int max_chain_gap;      // do not chain seed if it is max_chain_gap-bp away from the closest seed
-    int n_threads;          // number of threads
-    int chunk_size;         // process chunk_size-bp sequences in a batch
-    float mask_level;       // regard a hit as redundant if the overlap with another better hit is over mask_level times the min length of the two hits
-    float drop_ratio;       // drop a chain if its seed coverage is below drop_ratio times the seed coverage of a better chain overlapping with the small chain
-    float XA_drop_ratio;    // when counting hits for the XA tag, ignore alignments with score < XA_drop_ratio * max_score; only effective for the XA tag
-    float mask_level_redun;
-    float mapQ_coef_len;
-    int mapQ_coef_fac;
-    int max_ins;            // when estimating insert size distribution, skip pairs with insert longer than this value
-    int max_matesw;         // perform maximally max_matesw rounds of mate-SW for each end
-    int max_hits;           // if there are max_hits or fewer, output them all
-    int8_t mat[25];         // scoring matrix; mat[0] == 0 if unset
+    int match_score;         /**< Matching score. [1] */
+    int mismatch_penalty;    /**< Mismatch penalty. [4] */
+    int o_del, e_del;        // [6, 6]
+    int o_ins, e_ins;        // [1, 1]
+    int pen_unpaired;        /**< Phred-scaled penalty for unpaired reads. [17] */
+    int pen_clip5,pen_clip3; /**< Clipping penalty. This score is not deducted from the DP score. */
+    int band_width;          /**< Band width. [100] */
+    int zdrop;               /**< Off-diagonal X-dropoff (Z-dropoff). [100] */
+    int t;                   /**< Output score threshold; only affecting output. [30] */
+    int flag;                /**< See MEM_F_* macros. */
+    int min_seed_len;        /**< Minimum seed length. [19] */
+    int min_chain_weight;    // [0]
+    int max_chain_extend;    // [1<<30]
+    float split_factor;      /**< Split into a seed if MEM is longer than min_seed_len * split_factor. [1.5] */
+    int split_width;         /**< Split into a seed if its occurence is smaller than this value. [10] */
+    int max_occ;             /**< skip a seed if its occurence is larger than this value. [500] */
+    int max_chain_gap;       /**< Do not chain seed if it is max_chain_gap-bp away from the closest seed. [10000] */
+    int n_threads;           /**< Number of threads. [1] */
+    int chunk_size;          /**< Process chunk_size-bp sequences in a batch. [10000000] */
+    float mask_level;        /**< Regard a hit as redundant if the overlap with another better hit is over mask_level times the min length of the two hits. [0.5] */
+    float drop_ratio;        /**< drop a chain if its seed coverage is below drop_ratio times the seed coverage of a better chain overlapping with the small chain. [0.5] */
+    float xa_drop_ratio;     /**< When counting hits for the XA tag, ignore alignments with score < XA_drop_ratio * max_score; only effective for the XA tag. [0.8] */
+    float mask_level_redun;  // [0.95]
+    float mapq_coef_len;     // [50]
+    int max_ins;             /**< When estimating insert size distribution, skip pairs with insert longer than this value. [10000] */
+    int max_matesw;          /**< Perform maximally max_matesw rounds of mate-SW for each end. [50] */
+    int max_hits;            /**< If there are max_hits or fewer, output them all. [5] */
 } libbwa_mem_opt;
 
 /**
