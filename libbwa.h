@@ -35,8 +35,14 @@
 extern "C" {
 #endif
 
-// libbwa error codes.
-//
+/**
+ * libbwa error codes.
+ *
+ * libbwa function returns a status code, and you can check the success or cause
+ * of the failure. This error codes are newly added, and therefore, note that a
+ * part of original sources returns other error codes not existing in the enum
+ * below.
+ */
 // NOTE: Should never use 1 or -1 as an entity of a error code. These magic
 //       numbers are used in original BWA codes, and they have conflict risk.
 typedef enum {
@@ -56,6 +62,11 @@ typedef enum {
 // index
 // --------------------
 
+/**
+ * Index generation algorithms.
+ *
+ * @see libbwa_index()
+ */
 typedef enum {
     LIBBWA_INDEX_ALGO_AUTO = 0,
     LIBBWA_INDEX_ALGO_DIV = 1,
@@ -63,11 +74,25 @@ typedef enum {
     LIBBWA_INDEX_ALGO_IS = 3
 } libbwa_index_algo;
 
+/**
+ * Index database sequences in the FASTA format.
+ *
+ * Equivalent to `bwa index`.
+ *
+ * @see libbwa_index_algo
+ */
 int libbwa_index(const char *db, const char *prefix_, libbwa_index_algo algo, int is_64);
 
 // aln
 // --------------------
 
+/**
+ * Option structure for aln function.
+ *
+ * @see libbwa_aln_opt_init()
+ * @see libbwa_aln_opt_destroy()
+ * @see libbwa_aln()
+ */
 // Based on gap_opt_t in bwtaln.h
 typedef struct {
     int s_mm, s_gapo, s_gape;
@@ -81,30 +106,90 @@ typedef struct {
     int trim_qual;
 } libbwa_aln_opt;
 
+/**
+ * Returns initialized libbwa_aln_opt.
+ *
+ * This function dynamically allocates memory. You need to free the memory by
+ * libbwa_aln_opt_destroy() after the process.
+ *
+ * @see libbwa_aln_opt
+ * @see libbwa_aln_opt_destroy()
+ */
 // Based on gap_init_opt in bwtaln.h
 libbwa_aln_opt *libbwa_aln_opt_init(void);
 
+/**
+ * Destroy libbwa_aln_opt.
+ *
+ * @see libbwa_aln_opt
+ * @see libbwa_aln_opt_init()
+ */
 void libbwa_aln_opt_destroy(libbwa_aln_opt *opt);
 
-int libbwa_aln(const char *db, const char *read, const char *out, const libbwa_aln_opt *opt_);
+/**
+ * Find the SA coordinates of the input reads.
+ *
+ * Equivalent to `bwa aln`.
+ *
+ * @see libbwa_aln_opt
+ */
+int libbwa_aln(const char *db, const char *read, const char *out,
+               const libbwa_aln_opt *opt_);
 
 // samse
 // --------------------
 
+/**
+ * Option structure for samse function.
+ *
+ * @see libbwa_samse_opt_init()
+ * @see libbwa_samse_opt_destroy()
+ * @see libbwa_samse()
+ */
 typedef struct {
     int n_occ;
     char *rg_line;
 } libbwa_samse_opt;
 
+/**
+ * Returns initialized libbwa_samse_opt.
+ *
+ * This function dynamically allocates memory. You need to free the memory by
+ * libbwa_samse_opt_destroy() after the process.
+ *
+ * @see libbwa_samse_opt
+ * @see libbwa_samse_opt_destroy()
+ */
 libbwa_samse_opt *libbwa_samse_opt_init(void);
 
+/**
+ * Destroy libbwa_samse_opt.
+ *
+ * @see libbwa_samse_opt
+ * @see libbwa_samse_opt_init()
+ */
 void libbwa_samse_opt_destroy(libbwa_samse_opt *opt);
 
-int libbwa_samse(const char *db, const char *sai, const char *read, const char *out, const libbwa_samse_opt *opt);
+/**
+ * Generate alignments in the SAM format given single-end reads.
+ *
+ * Equivalent to `bwa samse`.
+ *
+ * @see libbwa_samse_opt
+ */
+int libbwa_samse(const char *db, const char *sai, const char *read,
+                 const char *out, const libbwa_samse_opt *opt);
 
 // sampe
 // --------------------
 
+/**
+ * Option structure for sampe function.
+ *
+ * @see libbwa_sampe_opt_init()
+ * @see libbwa_sampe_opt_destroy()
+ * @see libbwa_sampe()
+ */
 // Based on pe_opt_t in bwtaln.h
 typedef struct {
     int max_isize, force_isize;
@@ -115,11 +200,33 @@ typedef struct {
     char *rg_line;
 } libbwa_sampe_opt;
 
+/**
+ * Returns initialized libbwa_sampe_opt.
+ *
+ * This function dynamically allocates memory. You need to free the memory by
+ * libbwa_sampe_opt_destroy() after the process.
+ *
+ * @see libbwa_sampe_opt
+ * @see libbwa_sampe_opt_destroy()
+ */
 // Based on bwa_init_pe_opt in bwtaln.h
 libbwa_sampe_opt *libbwa_sampe_opt_init(void);
 
+/**
+ * Destroy libbwa_sampe_opt.
+ *
+ * @see libbwa_sampe_opt
+ * @see libbwa_sampe_opt_init()
+ */
 void libbwa_sampe_opt_destroy(libbwa_sampe_opt *opt);
 
+/**
+ * Generate alignments in the SAM format given paired-end reads.
+ *
+ * Equivalent to `bwa sampe`.
+ *
+ * @see libbwa_sampe_opt
+ */
 int libbwa_sampe(const char *db, const char *sai1, const char *sai2,
                  const char *read1, const char *read2, const char *out,
                  const libbwa_sampe_opt *opt);
@@ -127,6 +234,13 @@ int libbwa_sampe(const char *db, const char *sai1, const char *sai2,
 // bwasw
 // --------------------
 
+/**
+ * Option structure for sw function.
+ *
+ * @see libbwa_sw_opt_init()
+ * @see libbwa_sw_opt_destroy()
+ * @see libbwa_sw()
+ */
 // Based on bsw2opt_t in bwtsw2.h
 typedef struct {
     int skip_sw:8, cpy_cmt:8, hard_clip:16;
@@ -136,16 +250,46 @@ typedef struct {
     int n_threads, chunk_size;
 } libbwa_sw_opt;
 
+/**
+ * Returns initialized libbwa_sw_opt.
+ *
+ * This function dynamically allocates memory. You need to free the memory by
+ * libbwa_sw_opt_destroy() after the process.
+ *
+ * @see libbwa_sw_opt
+ * @see libbwa_sw_opt_destroy()
+ */
 // Based on bsw2_init_opt in bwtsw2.h
 libbwa_sw_opt *libbwa_sw_opt_init(void);
 
+/**
+ * Destroy libbwa_sw_opt.
+ *
+ * @see libbwa_sw_opt
+ * @see libbwa_sw_opt_init()
+ */
 void libbwa_sw_opt_destroy(libbwa_sw_opt *opt);
 
-int libbwa_sw(const char *db, const char *read, const char *mate, const char *out, const libbwa_sw_opt *opt_);
+/**
+ * Align query sequences in the FASTQ file with BWA-SW algorithm.
+ *
+ * Equivalent to `bwa bwasw`.
+ *
+ * @see libbwa_sw_opt
+ */
+int libbwa_sw(const char *db, const char *read, const char *mate,
+              const char *out, const libbwa_sw_opt *opt_);
 
 // mem
 // --------------------
 
+/**
+ * Option structure for mem function.
+ *
+ * @see libbwa_mem_opt_init()
+ * @see libbwa_mem_opt_destroy()
+ * @see libbwa_mem()
+ */
 // Same as mem_opt_t in bwamem.h
 typedef struct {
     int a, b;               // match score and mismatch penalty
@@ -179,27 +323,80 @@ typedef struct {
     int8_t mat[25];         // scoring matrix; mat[0] == 0 if unset
 } libbwa_mem_opt;
 
+/**
+ * Returns initialized libbwa_mem_opt.
+ *
+ * This function dynamically allocates memory. You need to free the memory by
+ * libbwa_mem_opt_destroy() after the process.
+ *
+ * @see libbwa_mem_opt
+ * @see libbwa_mem_opt_destroy()
+ */
 // Same as mem_opt_init in bwamem.h
 libbwa_mem_opt *libbwa_mem_opt_init(void);
 
+/**
+ * Destroy libbwa_mem_opt.
+ *
+ * @see libbwa_mem_opt
+ * @see libbwa_mem_opt_init()
+ */
 void libbwa_mem_opt_destroy(libbwa_mem_opt *opt);
 
-int libbwa_mem(const char *db, const char *read, const char *mate, const char *out, const libbwa_mem_opt *opt_);
+/**
+ * Align 70bp-1Mbp query sequences with the BWA-MEM algorithm.
+ *
+ * Equivalent to `bwa mem`.
+ *
+ * @see libbwa_mem_opt
+ */
+int libbwa_mem(const char *db, const char *read, const char *mate,
+               const char *out, const libbwa_mem_opt *opt_);
 
 // fastmap
 // --------------------
 
+/**
+ * Option structure for fastmap function.
+ *
+ * @see libbwa_fastmap_opt_init()
+ * @see libbwa_fastmap_opt_destroy()
+ * @see libbwa_fastmap()
+ */
 typedef struct {
     int print_seq;
     int min_iwidth;
     int min_len;
 } libbwa_fastmap_opt;
 
+/**
+ * Returns initialized libbwa_fastmap_opt.
+ *
+ * This function dynamically allocates memory. You need to free the memory by
+ * libbwa_fastmap_opt_destroy() after the process.
+ *
+ * @see libbwa_fastmap_opt
+ * @see libbwa_fastmap_opt_destroy()
+ */
 libbwa_fastmap_opt *libbwa_fastmap_opt_init(void);
 
+/**
+ * Destroy libbwa_fastmap_opt.
+ *
+ * @see libbwa_fastmap_opt
+ * @see libbwa_fastmap_opt_init()
+ */
 void libbwa_fastmap_opt_destroy(libbwa_fastmap_opt *opt);
 
-int libbwa_fastmap(const char *db, const char *read, const char *out, const libbwa_fastmap_opt *opt);
+/**
+ * Identifies super-maximal exact matches.
+ *
+ * Equivalent to `bwa fastmap`.
+ *
+ * @see libbwa_fastmap_opt
+ */
+int libbwa_fastmap(const char *db, const char *read, const char *out,
+                   const libbwa_fastmap_opt *opt);
 
 // pemerge
 // --------------------
@@ -209,26 +406,51 @@ int libbwa_fastmap(const char *db, const char *read, const char *out, const libb
 // fa2pac
 // --------------------
 
+/**
+ * Converts FASTA to PAC format.
+ *
+ * Equivalent to `bwa fa2pac`.
+ */
 int libbwa_fa2pac(const char *db, const char *prefix, int for_only);
 
 // pac2bwt
 // --------------------
 
+/**
+ * Generates BWT from PAC.
+ *
+ * Equivalent to `bwa pac2bwt`.
+ */
 int libbwa_pac2bwt(const char *pac, const char *out, int use_is);
 
 // pac2bwtgen
 // --------------------
 
+/**
+ * Alternative algorithm for generating BWT.
+ *
+ * Equivalent to `bwa pac2bwtgen`.
+ */
 int libbwa_bwtgen(const char *pac, const char *out);
 
 // bwtupdate
 // --------------------
 
+/**
+ * Updates .bwt to the new format.
+ *
+ * Equivalent to `bwa bwtupdate`.
+ */
 int libbwa_bwtupdate(const char *bwt_);
 
 // bwt2sa
 // --------------------
 
+/**
+ * Generates SA from BWT and Occ.
+ *
+ * Equivalent to `bwa bwt2sa`.
+ */
 int libbwa_bwt2sa(const char *bwt_, const char *out, int sa_intv);
 
 #ifdef __cplusplus
