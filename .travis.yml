@@ -1,10 +1,10 @@
 language: c
 compiler: clang
-before_install:
-  - sudo apt-get update -qq
-  - sudo apt-get install -qq zlib1g-dev libcunit1 libcunit1-dev
-before_script:
-  - mkdir build
-  - cd build
-  - cmake -DBUILD_TESTING=ON ..
+# before_install:
+#   - sudo apt-get update -qq
+#   - sudo apt-get install -qq zlib1g-dev libcunit1 libcunit1-dev
+# before_script:
+#   - mkdir build
+#   - cd build
+#   - cmake -DBUILD_TESTING=ON ..
 script: make && make test
