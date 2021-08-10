@@ -51,7 +51,10 @@ set(BWA_SOURCES
   bwt_lite.c
   bwtsw2_chain.c
   fastmap.c
-  bwtsw2_pair.c)
+  bwtsw2_pair.c
+  rope.c
+  rle.c
+  bwashm.c)
 
 include_directories(${PROJECT_SOURCE_DIR})
 

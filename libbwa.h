@@ -317,7 +317,7 @@ typedef struct {
     float mapq_coef_len;     // [50]
     int max_ins;             /**< When estimating insert size distribution, skip pairs with insert longer than this value. [10000] */
     int max_matesw;          /**< Perform maximally max_matesw rounds of mate-SW for each end. [50] */
-    int max_hits;            /**< If there are max_hits or fewer, output them all. [5] */
+    int max_XA_hits, max_XA_hits_alt; // if there are max_hits or fewer, output them all
 } libbwa_mem_opt;
 
 /**

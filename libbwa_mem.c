@@ -64,7 +64,8 @@ libbwa_mem_opt *libbwa_mem_opt_init(void)
     o->split_factor = 1.5;
     o->chunk_size = 10000000;
     o->n_threads = 1;
-    o->max_hits = 5;
+	o->max_XA_hits = 5;
+	o->max_XA_hits_alt = 200;
     o->max_matesw = 50;
     o->mask_level_redun = 0.95;
     o->min_chain_weight = 0;
@@ -107,7 +108,8 @@ void convert_mem_opt(const libbwa_mem_opt *src, mem_opt_t *dst)
     dst->mapQ_coef_fac = log(src->mapq_coef_len);
     dst->max_ins = src->max_ins;
     dst->max_matesw = src->max_matesw;
-    dst->max_hits = src->max_hits;
+    dst->max_XA_hits = src->max_XA_hits;
+	dst->max_XA_hits_alt = src->max_XA_hits;
 }
 
 // Modified based on main_mem in fastmap.c
